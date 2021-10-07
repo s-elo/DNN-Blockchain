@@ -20,8 +20,8 @@ console.log("current account: ", wallet.currentAccount());
 // requestFunds(wallet, accounts[1]);
 
 // get balance
-const balances = getBalance(wallet, accounts);
-console.log(balances);
+// const balances = getBalance(wallet, accounts);
+// console.log(balances);
 
 const tx = {
   to: accounts[1], // recipient's address, optional, new contract created if not provided
