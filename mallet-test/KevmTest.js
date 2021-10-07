@@ -1,3 +1,4 @@
+// const Mallet = require("@iohk/mallet");
 const Mallet = require("../mallet/lib/mallet.js");
 const { requestFunds, getBalance, sendTransaction, deploy, getReceipt } = require("./apis.js");
 

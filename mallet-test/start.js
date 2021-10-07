@@ -1,4 +1,4 @@
-const Mallet = require("../mallet/lib/mallet.js");
+const Mallet = require("@iohk/mallet");
 const malletAPIs = require("./apis.js");
 
 // place where stores the accounts

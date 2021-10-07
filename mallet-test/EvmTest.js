@@ -1,3 +1,4 @@
+// const Mallet = require("@iohk/mallet");
 const Mallet = require("../mallet/lib/mallet.js");
 const { requestFunds, getBalance, sendTransaction, deploy, getReceipt } = require("./apis.js");
 
@@ -19,8 +20,8 @@ console.log("current account: ", wallet.currentAccount());
 // requestFunds(wallet, accounts[1]);
 
 // get balance
-// const balances = getBalance(wallet, accounts);
-// console.log(balances);
+const balances = getBalance(wallet, accounts);
+console.log(balances);
 
 const tx = {
   to: accounts[1], // recipient's address, optional, new contract created if not provided
@@ -44,5 +45,5 @@ const deployParams = {
 // const deploymentHash = deploy(wallet, deployParams);
 // console.log(deploymentHash);
 
-const receipt = getReceipt(wallet, "0x4a7ab0d37a104e98640297fa3279428fe0312eceb5e1dce694c9299fe0b7dd03");
-console.log(receipt);
+// const receipt = getReceipt(wallet, "0x4a7ab0d37a104e98640297fa3279428fe0312eceb5e1dce694c9299fe0b7dd03");
+// console.log(receipt);
