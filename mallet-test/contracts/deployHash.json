@@ -1,0 +1,23 @@
+[
+  {
+    "contract": "HelloWorld",
+    "deploymentHash": "0x0ac59f6a5fb887fea0c91d87722f20cc805c96ada964474872db98ce5f0b9ee6"
+  },
+  {
+    "contract": "HelloWorld",
+    "deploymentHash": "0x5b9f2c52c6beae185bf1e229b1cb309b09b82a81665bc6736fe323a0720570b1"
+  },
+  {
+    "contract": "HelloWorld",
+    "deploymentHash": "0xbda5a1eef79279df866ee5ea4a8414baecfcef7f504ae810cce1bc32a3924658"
+  },
+  {
+    "contract": "HelloWorld",
+    "deploymentHash": "0xe1dbd46f732cd762f0dc207977a4f04b9b1c5891b8e6881ad820023526174d4e"
+  },
+  {
+    "contract": "HelloWorld",
+    "deploymentHash": "0x4a7ab0d37a104e98640297fa3279428fe0312eceb5e1dce694c9299fe0b7dd03",
+    "network": "evm"
+  }
+]
