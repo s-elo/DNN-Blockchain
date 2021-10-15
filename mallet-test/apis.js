@@ -86,6 +86,7 @@ module.exports.deploy = function deploy(wallet, params) {
   const tx = {
     gas,
     data: contract,
+    vlaue: 0
   };
 
   const deploymentHash = keepCall(

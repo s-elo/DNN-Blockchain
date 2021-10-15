@@ -1,6 +1,1 @@
-[
-  {
-    "contract": "HelloWorld",
-    "deploymentHash": "0x4a7ab0d37a104e98640297fa3279428fe0312eceb5e1dce694c9299fe0b7dd03"
-  }
-]
+[{"contract":"HelloWorld","deploymentHash":"0x4a7ab0d37a104e98640297fa3279428fe0312eceb5e1dce694c9299fe0b7dd03"},{"contract":"HelloWorld","deploymentHash":"0x91eaaf8b7ab541234f43e6e4ac8a47dc8987bf41a83ba26ac9d9baeb2c7ea538"}]

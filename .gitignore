@@ -4,12 +4,15 @@ node_modules
 
 /.vscode
 
-mallet-test/EvmData/logs
-
-mallet-test/KevmData/logs
-
-mallet/node_modules/
-
-mallet/data/logs
+logs
 
 mallet/data/.history
+
+cardano
+Alonzo
+Alonzo/cardano
+
+Alonzo/latestCardano
+
+Alonzo/docker/configuration
+Alonzo/docker/database

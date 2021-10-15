@@ -1,6 +1,13 @@
 // const Mallet = require("@iohk/mallet");
 const Mallet = require("../mallet/lib/mallet.js");
-const { requestFunds, getBalance, sendTransaction, deploy, getReceipt } = require("./apis.js");
+const fs = require("fs");
+const {
+  requestFunds,
+  getBalance,
+  sendTransaction,
+  deploy,
+  getReceipt,
+} = require("./apis.js");
 
 // place where stores the accounts
 const dataDir = "./EvmData";
@@ -20,8 +27,8 @@ console.log("current account: ", wallet.currentAccount());
 // requestFunds(wallet, accounts[1]);
 
 // get balance
-// const balances = getBalance(wallet, accounts);
-// console.log(balances);
+const balances = getBalance(wallet, accounts);
+console.log(balances);
 
 const tx = {
   to: accounts[1], // recipient's address, optional, new contract created if not provided
@@ -37,13 +44,17 @@ const tx = {
 // console.log('hash', transactionHash);
 
 // console.log(wallet.getReceipt(transactionHash));
+
+// const code = fs.readFileSync('../bin/mallet-test/HelloWorld.bin');
+
 const deployParams = {
   path: "/HelloWorld.bin",
-  gas: 6000000000,
+  gas: 1,
   password: "123",
 };
+
 // const deploymentHash = deploy(wallet, deployParams);
 // console.log(deploymentHash);
 
-// const receipt = getReceipt(wallet, "0x4a7ab0d37a104e98640297fa3279428fe0312eceb5e1dce694c9299fe0b7dd03");
+// const receipt = getReceipt(wallet, "0x91eaaf8b7ab541234f43e6e4ac8a47dc8987bf41a83ba26ac9d9baeb2c7ea538");
 // console.log(receipt);

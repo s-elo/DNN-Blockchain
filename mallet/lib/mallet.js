@@ -222,7 +222,7 @@ class Mallet {
     });
 
     const {rpc, faucet} = getUrls(url);
-
+    console.log('provider:', rpc);
     this.web3 = new Web3(new Web3.providers.HttpProvider(rpc), createRequestLogger(this.logdir));
     this.faucetUrl = faucet;
 
