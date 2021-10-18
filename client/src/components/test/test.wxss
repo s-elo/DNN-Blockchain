@@ -1,0 +1,18 @@
+.test-body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.test-body textarea {
+  outline: none;
+  margin-right: 10px;
+  height: 100px;
+  width: 200px;
+}
+.test-body button {
+  padding: 5px;
+  font-weight: bold;
+  outline: none;
+  cursor: pointer;
+  align-self: flex-start;
+}

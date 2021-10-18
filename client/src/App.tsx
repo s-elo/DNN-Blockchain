@@ -1,6 +1,7 @@
 import React from "react";
 import Menu from "./components/Menu";
 import SimpleStorage from "./contractComponents/SimpleStorage/SimpleStorage";
+import Test from './components/test/test';
 import "./App.less";
 
 const linkStyle = {
@@ -18,6 +19,11 @@ const demos = [
     name: "SimpleStorage",
     component: SimpleStorage,
   },
+  {
+    path: '/test',
+    name: 'Test',
+    component: Test
+  }
 ];
 
 export default class App extends React.Component {
