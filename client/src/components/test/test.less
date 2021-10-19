@@ -1,18 +1,23 @@
 .test-body {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  textarea {
-    outline: none;
-    margin-right: 10px;
-    height: 100px;
-    width: 200px;
+  .interact-area {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    textarea {
+      outline: none;
+      margin-right: 10px;
+      height: 100px;
+      width: 200px;
+    }
+    button {
+      padding: 5px;
+      font-weight: bold;
+      outline: none;
+      cursor: pointer;
+      align-self: flex-start;
+    }
   }
-  button {
-    padding: 5px;
-    font-weight: bold;
-    outline: none;
-    cursor: pointer;
-    align-self: flex-start;
+  .result {
+    margin-top: 10px;
   }
 }

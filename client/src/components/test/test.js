@@ -1,13 +1,26 @@
 import React, { Component } from "react";
-import params from "./weights.json";
-import wordIndex from "./word_index.json";
+import getWeb3 from "@/utils/getWeb3";
+import { convertNum, convertData } from "@/utils/float";
+import model from "./imdb-sentiment-model.json";
+import wordIndex from "./imdb.json";
 import "./test.less";
 
 export default class Test extends Component {
   state = {
     content: "",
-    result: ''
+    result: "",
   };
+
+  // componentDidMount = async () => {
+  //   this.web3 = await getWeb3();
+
+  //   // this.bias = convertNum(model.intercept, this.web3, 1e9);
+  //   // this.weights = convertData(model.weights, this.web3, 1e9);
+
+  //   this.weights = model.weights;
+  //   this.bias = model.intercept;
+  //   this.learningRate = model.learningRate;
+  // };
 
   handleChange = (e) => {
     this.setState({
@@ -16,43 +29,55 @@ export default class Test extends Component {
   };
 
   predict = () => {
-    const { w, b } = params;
-    const rawData = this.state.content.split(/[\s\,]/);
+    const { weights, intercept: bias } = model;
 
-    const data = this.processWords(rawData);
+    const rawData = this.state.content;
 
-    let sum = 0;
+    const data = this.transformInput(rawData);
+    console.log(data);
+    let sum = bias;
     for (let i = 0; i < data.length; i++) {
-      sum += w[i] * data[i];
+      if (data[i] > 1000) {
+        continue;
+      }
+      sum += weights[data[i]];
     }
 
-    sum += b;   
     console.log(sum);
-    if (sum > 0.5) {
-      this.setState({result: 'positive'});
+
+    if (sum <= 0) {
+      this.setState({ result: "negative" });
     } else {
-      this.setState({result: 'negative'});
+      this.setState({ result: "positive" });
     }
   };
 
-  processWords(words) {
-    const processData = new Array(1000).fill(0);
+  // initializeWeights = (startIndex, _weights) => {
+  //   for (let i = 0; i < _weights.length; ++i) {
+  //     this.weights[startIndex + i] = _weights[i];
+  //   }
+  // };
 
-    for (const word of words) {
-      const index = wordIndex[word];
-      if (index && index < 1000) {
-        processData[index] = 1;
+  transformInput = (content) => {
+    const words = content.toLocaleLowerCase("en").split(/[\s+,]/);
+    console.log(words);
+    return words.map((word) => {
+      let idx = wordIndex[word];
+      if (idx === undefined) {
+        return 1337;
       }
-    }
-
-    return processData;
-  }
+      return idx;
+    });
+    // .map((v) => this.web3.utils.toHex(v));
+  };
 
   render() {
     return (
       <div className="test-body">
+        <div className="interact-area">
         <textarea type="text" onChange={(e) => this.handleChange(e)} />
         <button onClick={this.predict}>Predict</button>
+        </div>
         <div className="result">{this.state.result}</div>
       </div>
     );
