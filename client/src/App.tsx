@@ -1,7 +1,8 @@
 import React from "react";
-import Menu from "./components/Menu";
-import SimpleStorage from "./contractComponents/SimpleStorage/SimpleStorage";
-import Test from './components/test/test';
+import Menu from "@/components/Menu";
+import SimpleStorage from "@/contractComponents/SimpleStorage/SimpleStorage";
+import ImdbPerceptron from "@/contractComponents/ImdbPerceptron/ImdbPerceptron";
+import Test from "@/components/test/test";
 import "./App.less";
 
 const linkStyle = {
@@ -20,10 +21,15 @@ const demos = [
     component: SimpleStorage,
   },
   {
-    path: '/test',
-    name: 'Test',
-    component: Test
-  }
+    path: "/imdbPerceptron",
+    name: "ImdbPerceptron",
+    component: ImdbPerceptron,
+  },
+  {
+    path: "/test",
+    name: "Test",
+    component: Test,
+  },
 ];
 
 export default class App extends React.Component {
