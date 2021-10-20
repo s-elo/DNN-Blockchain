@@ -8,7 +8,7 @@ export default class Test extends Component {
   state = {
     content: "",
     result: "",
-    classification: 0
+    classification: 1,
   };
 
   componentDidMount = async () => {
@@ -36,10 +36,12 @@ export default class Test extends Component {
     const rawData = this.state.content;
 
     const data = this.transformInput(rawData);
-    // console.log(data);
+    console.log(data);
+
+    this.setState({ result: "Loading.." });
 
     const result = await this.model.methods.predict(data).call();
-    // console.log(result);
+    console.log(result);
     if (Number(result) === 0) {
       this.setState({ result: "negative" });
     } else {
@@ -87,7 +89,10 @@ export default class Test extends Component {
           <textarea type="text" onChange={(e) => this.handleChange(e)} />
           <div className="btn">
             <button onClick={this.predict}>Predict</button>
-            <select onChange={(e) => this.selectionChange(e)}>
+            <select
+              onChange={(e) => this.selectionChange(e)}
+              value={this.state.classification}
+            >
               <option value="1">positive</option>
               <option value="0">negative</option>
             </select>
