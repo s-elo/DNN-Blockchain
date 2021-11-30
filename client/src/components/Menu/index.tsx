@@ -7,6 +7,7 @@ import {
   withRouter,
   RouteComponentProps,
 } from "react-router-dom";
+import Ops from "@/components/Ops";
 
 import "./index.less";
 
@@ -28,16 +29,11 @@ type Props = {
 
 class Menu extends React.Component<RouteComponentProps & Props> {
   state = {
-    showItem: false,
     isFirstTime: true,
   };
 
   handleShowItem(itemName: string) {
     this.props.itemChanged && this.props.itemChanged(itemName);
-
-    this.setState({
-      showItem: true,
-    });
   }
 
   toMenu() {
@@ -46,10 +42,6 @@ class Menu extends React.Component<RouteComponentProps & Props> {
     history.push(menuPath);
 
     this.props.itemChanged && this.props.itemChanged("");
-
-    this.setState({
-      showItem: false,
-    });
   }
 
   componentDidMount() {
@@ -81,17 +73,22 @@ class Menu extends React.Component<RouteComponentProps & Props> {
 
       this.setState({
         isFirstTime: false,
-        showItem: true,
       });
     }
   }
 
+  isMenuPath = (menuPath: string) => {
+    // when it is a root path,
+    // show the menu instead of the items
+    return this.props.location.pathname === menuPath;
+  };
+
   render() {
-    const { items, linkStyle } = this.props;
+    const { items, linkStyle, menuPath } = this.props;
 
     return (
       <div className="body">
-        {!this.state.showItem ? (
+        {this.isMenuPath(menuPath) ? (
           <div className="menu">
             {items.map((item, index) => (
               <div
@@ -117,8 +114,9 @@ class Menu extends React.Component<RouteComponentProps & Props> {
                     key={item.path}
                   />
                 ))}
+                <Route path="/ops" component={Ops} />
                 {/* when the above does not match */}
-                <Redirect to="/" />
+                <Redirect to="/ops" />
               </Switch>
             </div>
             <div className="back-to-menu" onClick={this.toMenu.bind(this)}>
