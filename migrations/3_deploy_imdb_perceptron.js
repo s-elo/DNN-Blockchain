@@ -22,7 +22,10 @@ module.exports = function (deployer, accounts) {
       weights.slice(0, initNumWords),
       intercept,
       learningRate,
-      { gas: 7.9e6, overwrite: false }
+      {
+        gas: 7.9e6,
+        overwrite: false,
+      }
     )
     .then(async (classifier) => {
       console.log(`  Deployed classifier to ${classifier.address}.`);

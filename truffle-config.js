@@ -14,9 +14,21 @@ module.exports = {
   },
   // can choose different network
   networks: {
+    development: {
+      host: "127.0.0.1",
+      port: 7545,
+      gasPrice: 0x01,
+      skipDryRun: true,
+      network_id: "*", // Match any network id
+    },
     develop: {
       host: "http://127.0.0.1",
       port: 8545,
+      network_id: "*",
+      gasPrice: 0x01,
+      gas: 8000000,
+      gaslimit: 0xffffffff,
+      skipDryRun: true,
     },
     rinkeby: {
       provider: function () {
@@ -39,7 +51,7 @@ module.exports = {
       network_id: 3,
       gas: 4500000,
       gasPrice: 10000000000,
-      skipDryRun: true
+      skipDryRun: true,
     },
     kovan: {
       provider: function () {
