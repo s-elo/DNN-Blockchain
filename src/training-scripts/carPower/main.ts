@@ -60,5 +60,5 @@ async function trainModel(
   await trainModel(model, inputs, labels);
   console.log("Done Training");
 
-  saveModel("carPower", model);
+  saveModel(model);
 })();

@@ -8,15 +8,7 @@ import {
   NormalizedData,
 } from "./dataHandler";
 
-// "leo666", "9TTpbOGbgjSt7Q7zooIi"
-const data: Plot[] = [{ x: [1, 3, 4, 5], y: [3, 12, 1, 4], type: "scatter" }];
-plot(data);
-
-const MODEL_PATH = path.resolve(
-  __dirname,
-  "../../",
-  "models/carPower/model.json"
-);
+const MODEL_PATH = path.resolve(__dirname, ".", "models/model.json");
 
 (async () => {
   const model = await tf.loadLayersModel(`file://${MODEL_PATH}`);

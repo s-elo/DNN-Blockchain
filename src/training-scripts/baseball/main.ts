@@ -1,9 +1,7 @@
-const tf = require("@tensorflow/tfjs-node-gpu");
-const path = require("path");
-const fs = require("fs-extra");
+import * as tf from "@tensorflow/tfjs-node-gpu";
 
-const { saveModel } = require("../../utils.js");
-const { csvTransform } = require("./dataHandler.js");
+import { saveModel } from "./utils";
+import { csvTransform } from "./dataHandler";
 
 // data can be loaded from URLs or local file paths when running in Node.js.
 const TRAIN_DATA_PATH =
@@ -47,13 +45,15 @@ model.compile({
 
 // Returns pitch class evaluation percentages for training data
 // with an option to include test data
-async function evaluate(useTestData) {
+async function evaluate(useTestData: boolean) {
   let results = {};
   await trainingValidationData.forEachAsync((pitchTypeBatch) => {
-    const values = model.predict(pitchTypeBatch.xs).dataSync();
+    const values = (
+      model.predict((pitchTypeBatch as any).xs) as tf.Tensor2D
+    ).dataSync();
     const classSize = TRAINING_DATA_LENGTH / NUM_PITCH_CLASSES;
     for (let i = 0; i < NUM_PITCH_CLASSES; i++) {
-      results[pitchFromClassNum(i)] = {
+      (results as any)[pitchFromClassNum(i)] = {
         training: calcPitchClassEval(i, classSize, values),
       };
     }
@@ -61,10 +61,12 @@ async function evaluate(useTestData) {
 
   if (useTestData) {
     await testValidationData.forEachAsync((pitchTypeBatch) => {
-      const values = model.predict(pitchTypeBatch.xs).dataSync();
+      const values = (
+        model.predict((pitchTypeBatch as any).xs) as tf.Tensor2D
+      ).dataSync();
       const classSize = TEST_DATA_LENGTH / NUM_PITCH_CLASSES;
       for (let i = 0; i < NUM_PITCH_CLASSES; i++) {
-        results[pitchFromClassNum(i)].validation = calcPitchClassEval(
+        (results as any)[pitchFromClassNum(i)].validation = calcPitchClassEval(
           i,
           classSize,
           values
@@ -75,8 +77,10 @@ async function evaluate(useTestData) {
   return results;
 }
 
-async function predictSample(sample) {
-  let result = model.predict(tf.tensor(sample, [1, sample.length])).arraySync();
+async function predictSample(sample: number[]) {
+  let result = (
+    model.predict(tf.tensor(sample, [1, sample.length])) as tf.Tensor2D
+  ).arraySync();
   var maxValue = 0;
   var predictedPitch = 7;
   for (var i = 0; i < NUM_PITCH_CLASSES; i++) {
@@ -89,7 +93,11 @@ async function predictSample(sample) {
 }
 
 // Determines accuracy evaluation for a given pitch class by index
-function calcPitchClassEval(pitchIndex, classSize, values) {
+function calcPitchClassEval(
+  pitchIndex: number,
+  classSize: number,
+  values: Float32Array | Int32Array | Uint8Array
+) {
   // Output has 7 different class values for each pitch, offset based on
   // which pitch class (ordered by i)
   let index = pitchIndex * classSize * NUM_PITCH_CLASSES + pitchIndex;
@@ -102,7 +110,7 @@ function calcPitchClassEval(pitchIndex, classSize, values) {
 }
 
 // Returns the string value for Baseball pitch labels
-function pitchFromClassNum(classNum) {
+function pitchFromClassNum(classNum: number) {
   switch (classNum) {
     case 0:
       return "Fastball (2-seam)";
@@ -123,32 +131,22 @@ function pitchFromClassNum(classNum) {
   }
 }
 
-const pitch_type = {
-  evaluate,
-  model,
-  pitchFromClassNum,
-  predictSample,
-  testValidationData,
-  trainingData,
-  TEST_DATA_LENGTH,
-};
-
 const TIMEOUT_BETWEEN_EPOCHS_MS = 500;
 // util function to sleep for a given ms
-function sleep(ms) {
+function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-async function train(pitch_type) {
+async function train() {
   let numTrainingIterations = 10;
   for (var i = 0; i < numTrainingIterations; i++) {
     console.log(`Training iteration : ${i + 1} / ${numTrainingIterations}`);
-    await pitch_type.model.fitDataset(pitch_type.trainingData, { epochs: 1 });
+    await model.fitDataset(trainingData, { epochs: 1 });
     // console.log("accuracyPerClass", await pitch_type.evaluate(true));
     await sleep(TIMEOUT_BETWEEN_EPOCHS_MS);
   }
 
-  saveModel("baseball", model);
+  saveModel(model);
 }
 
-train(pitch_type);
+train();

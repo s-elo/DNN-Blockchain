@@ -1,12 +1,12 @@
-const path = require("path");
-const tf = require("@tensorflow/tfjs-node-gpu");
+import path from "path";
+import * as tf from "@tensorflow/tfjs-node-gpu";
 
-const { csvTransform } = require("./dataHandler.js");
+import { csvTransform } from "./dataHandler";
 
 const MODEL_PATH = path.resolve(
   __dirname,
-  "../../",
-  "models/baseball/model.json"
+  ".",
+  "models/model.json"
 );
 
 const TEST_DATA_PATH =
@@ -23,9 +23,11 @@ const testValidationData = tf.data
   const model = await tf.loadLayersModel(`file://${MODEL_PATH}`);
 
   await testValidationData.forEachAsync((pitchTypeBatch) => {
-    const values = model.predict(pitchTypeBatch.xs).dataSync();
-   
-    console.log(pitchTypeBatch.ys);
+    const values = (
+      model.predict((pitchTypeBatch as any).xs) as tf.Tensor2D
+    ).dataSync();
+
+    console.log((pitchTypeBatch as any).ys);
     console.log(values.length);
   });
 })();

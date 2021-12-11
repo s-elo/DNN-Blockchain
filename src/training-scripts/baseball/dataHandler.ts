@@ -1,6 +1,7 @@
 // Converts a row from the CSV into features and labels.
 // Each feature field is normalized within training data constants
-function csvTransform({ xs, ys }) {
+// { xs: XSType; ys: YSType }
+export function csvTransform({ xs, ys }: any) {
   // Constants from training data
   const VX0_MIN = -18.885;
   const VX0_MAX = 18.065;
@@ -31,14 +32,9 @@ function csvTransform({ xs, ys }) {
 }
 
 // util function to normalize a value between a given range.
-function normalize(value, min, max) {
+export function normalize(value: number, min: number, max: number) {
   if (min === undefined || max === undefined) {
     return value;
   }
   return (value - min) / (max - min);
 }
-
-module.exports = {
-  csvTransform,
-  normalize,
-};

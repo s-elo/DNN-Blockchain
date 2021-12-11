@@ -11,12 +11,5 @@ export function install(libs: Array<string>) {
     libs.forEach((lib) => {
       execSync(`npm install ${lib}`);
     });
-
-    // with questionaire
-    // spawn("npm", ["init"], {
-    //   cwd: __dirname,
-    //   shell: true,
-    //   stdio: "inherit",
-    // });
   }
 }
