@@ -1,4 +1,5 @@
 import express from 'express';
+import getScripts from './routers/getScripts';
 
 const server = express();
 
@@ -12,8 +13,6 @@ const port = 3500;
 //   next();
 // });
 
-server.get("/", (_, res) => {
-  return res.send("you are visiting this server right now");
-});
+server.use('/get-scripts', getScripts);
 
 server.listen(port, () => console.log(`Listening on port ${port}`));
