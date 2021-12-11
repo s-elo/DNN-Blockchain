@@ -1,6 +1,6 @@
 import * as tf from "@tensorflow/tfjs-node-gpu";
 
-import { saveModel } from "../../utils";
+import { saveModel } from "./utils";
 import { convertToTensor, getData } from "./dataHandler";
 
 function createModel() {
