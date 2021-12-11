@@ -1,7 +1,8 @@
-const path = require('path');
-const fs = require('fs-extra');
+import path from "path";
+import fs from "fs-extra";
+import * as tf from "@tensorflow/tfjs-node-gpu";
 
-module.exports.saveModel = async (modelName, model) => {
+export async function saveModel(modelName: string, model: tf.LayersModel) {
   const modelSavePath = path.resolve(__dirname, ".", "models");
   if (!fs.existsSync(modelSavePath)) {
     fs.mkdirSync(modelSavePath);
@@ -16,4 +17,4 @@ module.exports.saveModel = async (modelName, model) => {
   }
 
   await model.save(`file://${currentModelPath}`);
-};
+}

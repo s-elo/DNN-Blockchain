@@ -1,13 +1,31 @@
-const tf = require("@tensorflow/tfjs-node-gpu");
-const axios = require('axios');
+import * as tf from "@tensorflow/tfjs-node-gpu";
+import axios from "axios";
 
+export interface InputData {
+  horsepower: number;
+  mpg: number;
+}
+
+interface RemoteData {
+  Miles_per_Gallon: number;
+  Horsepower: number;
+}
+
+export interface NormalizedData {
+  inputs: tf.Tensor<tf.Rank>;
+  labels: tf.Tensor<tf.Rank>;
+  inputMax: tf.Tensor<tf.Rank>;
+  inputMin: tf.Tensor<tf.Rank>;
+  labelMax: tf.Tensor<tf.Rank>;
+  labelMin: tf.Tensor<tf.Rank>;
+}
 /**
  * Convert the input data to tensors that we can use for machine
  * learning. We will also do the important best practices of _shuffling_
  * the data and _normalizing_ the data
  * MPG on the y-axis.
  */
-function convertToTensor(data) {
+export function convertToTensor(data: Array<InputData>) {
   // Wrapping these calculations in a tidy will dispose any
   // intermediate tensors.
 
@@ -48,12 +66,12 @@ function convertToTensor(data) {
   });
 }
 
-async function getData() {
+export async function getData() {
   const carsDataResponse = await axios.get(
     "https://storage.googleapis.com/tfjs-tutorials/carsData.json"
   );
 
-  const carsData = carsDataResponse.data;
+  const carsData = carsDataResponse.data as Array<RemoteData>;
 
   const cleaned = carsData
     .map((car) => ({
@@ -64,8 +82,3 @@ async function getData() {
 
   return cleaned;
 }
-
-module.exports = {
-  convertToTensor,
-  getData,
-};

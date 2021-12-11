@@ -1,8 +1,7 @@
-const tf = require("@tensorflow/tfjs-node-gpu");
-const axios = require("axios");
+import * as tf from "@tensorflow/tfjs-node-gpu";
 
-const { saveModel } = require("../../utils.js");
-const { convertToTensor, getData } = require("./dataHandler.js");
+import { saveModel } from "../../utils";
+import { convertToTensor, getData } from "./dataHandler";
 
 function createModel() {
   // Create a sequential model
@@ -23,7 +22,11 @@ function createModel() {
   return model;
 }
 
-async function trainModel(model, inputs, labels) {
+async function trainModel(
+  model: tf.Sequential,
+  inputs: tf.Tensor<tf.Rank>,
+  labels: tf.Tensor<tf.Rank>
+) {
   // Prepare the model for training.
   model.compile({
     optimizer: tf.train.adam(),
