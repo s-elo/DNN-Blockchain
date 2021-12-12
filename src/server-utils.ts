@@ -9,16 +9,20 @@ export function getScriptNames() {
 }
 
 export async function compressScript(scriptName: string) {
-  return new Promise((res, rej) => {
+  return new Promise<string>((res, rej) => {
     const scriptDirPath = path.resolve(
       __dirname,
       ".",
       `training-scripts/${scriptName}`
     );
 
-    const outputStream = fs.createWriteStream(
-      `${scriptDirPath}/${scriptName}.zip`
+    const outputPath = path.resolve(
+      __dirname,
+      "../",
+      `public/${scriptName}.zip`
     );
+
+    const outputStream = fs.createWriteStream(`${outputPath}`);
 
     //   {
     //     zlib: { level: 9 }, // Sets the compression level.
@@ -39,7 +43,7 @@ export async function compressScript(scriptName: string) {
       console.log(
         "archiver has been finalized and the output file descriptor has closed."
       );
-      res('compressed!');
+      res(outputPath);
     });
 
     archive.on("error", function (err) {
