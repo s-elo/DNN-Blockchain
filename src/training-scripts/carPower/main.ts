@@ -41,7 +41,7 @@ async function trainModel(
     batchSize,
     epochs,
     shuffle: true,
-    callbacks: tf.node.tensorBoard("./fit_logs_1"),
+    callbacks: tf.node.tensorBoard("./logs/fit_logs_1"),
   });
 }
 

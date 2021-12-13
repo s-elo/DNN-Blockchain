@@ -2,30 +2,19 @@ import { install } from "./install";
 
 // console.log("Installing packages...");
 
-// try {
-//   install(["@tensorflow/tfjs-node-gpu", "fs-extra", "axios"]);
-// } catch (err) {
-//   console.log(err);
-// }
+// install(["@tensorflow/tfjs-node-gpu", "fs-extra", "axios"]);
 
 // console.log("Installation done!");
 
 import * as tf from "@tensorflow/tfjs-node-gpu";
-import path from "path";
-import fs from "fs";
-import {
-  getDataSet,
-  CLASS_NAMES,
-  IMAGE_WIDTH,
-  IMAGE_HEIGHT,
-  IMAGE_CHANNELS,
-  BATCH_SIZE,
-} from "./dataHandler";
-
-const LEARNING_RATE = 0.001;
+import { data } from "./dataHandler";
 
 function getModel() {
   const model = tf.sequential();
+
+  const IMAGE_WIDTH = 28;
+  const IMAGE_HEIGHT = 28;
+  const IMAGE_CHANNELS = 1;
 
   // In the first layer of our convolutional neural network we have
   // to specify the input shape. Then we specify some parameters for
@@ -65,9 +54,10 @@ function getModel() {
 
   // Our last layer is a dense layer which has 10 output units, one for each
   // output class (i.e. 0, 1, 2, 3, 4, 5, 6, 7, 8, 9).
+  const NUM_OUTPUT_CLASSES = 10;
   model.add(
     tf.layers.dense({
-      units: CLASS_NAMES.length,
+      units: NUM_OUTPUT_CLASSES,
       kernelInitializer: "varianceScaling",
       activation: "softmax",
     })
@@ -75,7 +65,7 @@ function getModel() {
 
   // Choose an optimizer, loss function and accuracy metric,
   // then compile and return the model
-  const optimizer = tf.train.adam(LEARNING_RATE);
+  const optimizer = tf.train.adam();
   model.compile({
     optimizer: optimizer,
     loss: "categoricalCrossentropy",
@@ -86,26 +76,32 @@ function getModel() {
 }
 
 async function train() {
-  console.log(`Loading data...`);
+  const BATCH_SIZE = 512;
+  const TRAIN_DATA_SIZE = 55000;
+  const TEST_DATA_SIZE = 10000;
 
-  const { imgs: trainData, labels: trainLabel } = await getDataSet("TRAIN");
-  const { imgs: testData, labels: testLabel } = await getDataSet("TEST");
-
-  console.log(`data Loaded`);
-  console.log(trainData, trainLabel.dataSync());
-
+  await data.load();
+  await data.createDataset();
+  
   const model = getModel();
 
-  return model.fit(trainData, trainLabel, {
+  const [trainXs, trainYs] = tf.tidy(() => {
+    const d = data.nextTrainBatch(TRAIN_DATA_SIZE);
+    return [d.xs.reshape([TRAIN_DATA_SIZE, 28, 28, 1]), d.labels];
+  });
+
+  const [testXs, testYs] = tf.tidy(() => {
+    const d = data.nextTestBatch(TEST_DATA_SIZE);
+    return [d.xs.reshape([TEST_DATA_SIZE, 28, 28, 1]), d.labels];
+  });
+
+  return model.fit(trainXs, trainYs, {
     batchSize: BATCH_SIZE,
-    validationData: [testData, testLabel],
+    validationData: [testXs, testYs],
     epochs: 10,
     shuffle: true,
-    callbacks: tf.node.tensorBoard("./logs/fit_logs_1")
+    callbacks: tf.node.tensorBoard("./logs/fit_logs_1"),
   });
 }
 
 train();
-
-
-// const evalOutput = model.evaluate(testImages, testLabels);

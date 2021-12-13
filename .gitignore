@@ -7,3 +7,5 @@ models
 dist
 
 *.zip
+
+logs

@@ -38,7 +38,8 @@ export function getSingleImgTensor(
     [IMAGE_WIDTH, IMAGE_HEIGHT]
   );
 
-  return resizedTfImg;
+  const floatImg = tf.cast(resizedTfImg, "float32");
+  return floatImg;
 }
 
 export function getClassNames() {
@@ -87,11 +88,11 @@ export function getDataSet(type: "TRAIN" | "TEST") {
       } as OriginalData
     );
 
-    res(normalization(result));
+    res(tersorization(result));
   });
 }
 
-function normalization(dataset: OriginalData) {
+function tersorization(dataset: OriginalData) {
   return tf.tidy(() => {
     // each pos represents a class
     // the value of the pos is 1 means the label is that class
