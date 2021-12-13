@@ -15,8 +15,8 @@ export const IMAGE_CHANNELS = 3;
 export const BATCH_SIZE = 512;
 
 type OriginalData = {
-  imgs: Array<tf.Tensor3D>;
-  labels: Array<number>;
+  imgs: tf.Tensor<tf.Rank>[];
+  labels: number[];
 };
 
 type NormalizedData = {
@@ -34,12 +34,13 @@ export function getSingleImgTensor(
   );
 
   const resizedTfImg = tf.image.resizeBilinear(
-    tf.node.decodeImage(imgBuffer) as tf.Tensor3D,
+    tf.node.decodeImage(imgBuffer, IMAGE_CHANNELS) as tf.Tensor3D,
     [IMAGE_WIDTH, IMAGE_HEIGHT]
   );
 
-  const floatImg = tf.cast(resizedTfImg, "float32");
-  return floatImg;
+  // const floatImg = tf.cast(resizedTfImg, "float32");
+  // return floatImg;
+  return resizedTfImg;
 }
 
 export function getClassNames() {
@@ -64,7 +65,7 @@ export function getClassNames() {
   return classNameFromTrain;
 }
 
-export function getDataSet(type: "TRAIN" | "TEST") {
+export function getData(type: "TRAIN" | "TEST", percent: number = 1) {
   return new Promise<NormalizedData>((res) => {
     const result = CLASS_NAMES.reduce(
       (set, curClass, classIdx) => {
@@ -72,13 +73,14 @@ export function getDataSet(type: "TRAIN" | "TEST") {
           `${type === "TRAIN" ? TRAIN_PATH : TEST_PATH}/${curClass}`
         );
 
-        imgNames.forEach(async (imgName) => {
+        for (const [index, imgName] of imgNames.entries()) {
           // getSingleImgTensor return a promise
           // the tensor should be turned into normal data here
           set.imgs.push(getSingleImgTensor(imgName, curClass, type));
 
           set.labels.push(classIdx);
-        });
+          if (index >= imgNames.length * percent) break;
+        }
 
         return set;
       },
@@ -93,26 +95,58 @@ export function getDataSet(type: "TRAIN" | "TEST") {
 }
 
 function tersorization(dataset: OriginalData) {
-  return tf.tidy(() => {
-    // each pos represents a class
-    // the value of the pos is 1 means the label is that class
-    // tfLabels: (sample_num, class_num)
-    const tfLabels = tf.oneHot(
-      tf.tensor1d(dataset.labels, "int32"),
-      CLASS_NAMES.length,
-      1, // onVlaue
-      0 // offValue
+  // return tf.data.zip({
+  //   xs: tf.data.array(dataset.imgs),
+  //   ys: tf.data.array(dataset.labels),
+  // });
+  // each pos represents a class
+  // the value of the pos is 1 means the label is that class
+  // tfLabels: (sample_num, class_num)
+  const tfLabels = tf.oneHot(
+    tf.tensor1d(dataset.labels, "int32"),
+    CLASS_NAMES.length,
+    1, // onVlaue
+    0 // offValue
+  );
+
+  // tfImgs: (sample_num, width, height, channel)
+  const tfImgs = tf.stack(dataset.imgs);
+  return {
+    imgs: tfImgs.div(255),
+    labels: tfLabels,
+  };
+  // return tf.tidy(() => {
+
+  // });
+}
+
+export function getDataset(type: "TRAIN" | "TEST", percent: number = 1) {
+  const dataset = tf.data
+    .generator(getDataGen.bind(null, type, percent))
+    .batch(5000);
+
+  return dataset;
+}
+
+function* getDataGen(type: "TRAIN" | "TEST", percent: number = 1) {
+  for (const [classIdx, className] of CLASS_NAMES.entries()) {
+    const imgNames = fs.readdirSync(
+      `${type === "TRAIN" ? TRAIN_PATH : TEST_PATH}/${className}`
     );
 
-    // tfImgs: (sample_num, width, height, channel)
-    const tfImgs = tf.stack(dataset.imgs);
+    for (const [index, imgName] of imgNames.entries()) {
+      if (index >= imgNames.length * percent) break;
 
-    // 0-1
-    const normalizedImgs = tfImgs.div(255);
+      // getSingleImgTensor return a promise
+      // the tensor should be turned into normal data here
+      yield {
+        xs: getSingleImgTensor(imgName, className, type),
+        ys: tf.tensor1d(generateLabel(CLASS_NAMES.length, classIdx)),
+      };
+    }
+  }
+}
 
-    return {
-      imgs: normalizedImgs,
-      labels: tfLabels,
-    };
-  });
+function generateLabel(classNum: number, indice: number) {
+  return new Array(classNum).fill(0).map((_, idx) => (idx === indice ? 1 : 0));
 }

@@ -85,6 +85,8 @@ async function train() {
   
   const model = getModel();
 
+  model.summary();
+  
   const [trainXs, trainYs] = tf.tidy(() => {
     const d = data.nextTrainBatch(TRAIN_DATA_SIZE);
     return [d.xs.reshape([TRAIN_DATA_SIZE, 28, 28, 1]), d.labels];

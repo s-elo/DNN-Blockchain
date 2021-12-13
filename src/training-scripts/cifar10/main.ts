@@ -11,10 +11,9 @@ import { install } from "./install";
 // console.log("Installation done!");
 
 import * as tf from "@tensorflow/tfjs-node-gpu";
-import path from "path";
-import fs from "fs";
 import {
-  getDataSet,
+  getData,
+  getDataset,
   CLASS_NAMES,
   IMAGE_WIDTH,
   IMAGE_HEIGHT,
@@ -22,7 +21,7 @@ import {
   BATCH_SIZE,
 } from "./dataHandler";
 
-const LEARNING_RATE = 0.001;
+const LEARNING_RATE = 0.0001;
 
 function getModel() {
   const model = tf.sequential();
@@ -88,24 +87,36 @@ function getModel() {
 async function train() {
   console.log(`Loading data...`);
 
-  const { imgs: trainData, labels: trainLabel } = await getDataSet("TRAIN");
-  const { imgs: testData, labels: testLabel } = await getDataSet("TEST");
+  const { imgs: trainData, labels: trainLabel } = await getData("TRAIN");
+  const { imgs: testData, labels: testLabel } = await getData("TEST");
+
+  // const trainset = getDataset("TRAIN", 0.1);
+  // const testset = getDataset("TEST", 0.1);
 
   console.log(`data Loaded`);
-  console.log(trainData, trainLabel.dataSync());
+  console.log(trainData, trainLabel);
+  // console.log(trainset);
 
   const model = getModel();
+
+  model.summary();
 
   return model.fit(trainData, trainLabel, {
     batchSize: BATCH_SIZE,
     validationData: [testData, testLabel],
+    // validationSplit: 0.7,
     epochs: 10,
     shuffle: true,
-    callbacks: tf.node.tensorBoard("./logs/fit_logs_1")
+    callbacks: tf.node.tensorBoard("./logs/fit_logs_1"),
   });
+
+  // await model.fitDataset(trainset, {
+  //   validationData: testset,
+  //   epochs: 4,
+  //   callbacks: tf.node.tensorBoard("./logs/fit_logs_1"),
+  // });
 }
 
 train();
 
-
-// const evalOutput = model.evaluate(testImages, testLabels);
+// const evalOutput = model.evaluate(testImages, testLabels); 
