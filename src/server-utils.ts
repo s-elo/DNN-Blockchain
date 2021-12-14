@@ -2,18 +2,27 @@ import path from "path";
 import fs from "fs-extra";
 import archiver from "archiver";
 
-const scriptsPath = path.resolve(__dirname, ".", "training-scripts");
+// to distinguish the typescripts scripts and python scripts
+const tsScriptsPath = path.resolve(__dirname, ".", "training-scripts/ts");
+const pyScriptsPath = path.resolve(__dirname, ".", "training-scripts/py");
 
 export function getScriptNames() {
-  return fs.readdirSync(scriptsPath).filter((script) => script !== "template");
+  const tsScriptNames = fs
+    .readdirSync(tsScriptsPath)
+    .filter((script) => script !== "template");
+  const pyScriptNames = fs
+    .readdirSync(pyScriptsPath)
+    .filter((script) => script !== "template");
+
+  return [...addSuffix(tsScriptNames, "ts"), ...addSuffix(pyScriptNames, "py")];
 }
 
-export async function compressScript(scriptName: string) {
+export async function compressScript(scriptName: string, type: SuffixType) {  
   return new Promise<string>((res, rej) => {
     const scriptDirPath = path.resolve(
       __dirname,
       ".",
-      `training-scripts/${scriptName}`
+      `training-scripts/${type}/${scriptName}`
     );
 
     const outputPath = path.resolve(
@@ -24,9 +33,6 @@ export async function compressScript(scriptName: string) {
 
     const outputStream = fs.createWriteStream(`${outputPath}`);
 
-    //   {
-    //     zlib: { level: 9 }, // Sets the compression level.
-    //   }
     const archive = archiver("zip");
 
     archive.pipe(outputStream);
@@ -51,3 +57,11 @@ export async function compressScript(scriptName: string) {
     });
   });
 }
+
+type SuffixType = "ts" | "py";
+
+export const addSuffix = (scriptNames: string[], suffix: SuffixType) =>
+  scriptNames.map((name) => `${name}-${suffix}`);
+
+export const splitSuffix = (scriptName: string) =>
+  scriptName.split("-") as [string, SuffixType];

@@ -16,7 +16,7 @@ export const BATCH_SIZE = 512;
 
 type OriginalData = {
   imgs: tf.Tensor<tf.Rank>[];
-  labels: number[];
+  labels: Array<number[]>;
 };
 
 type NormalizedData = {
@@ -78,7 +78,8 @@ export function getData(type: "TRAIN" | "TEST", percent: number = 1) {
           // the tensor should be turned into normal data here
           set.imgs.push(getSingleImgTensor(imgName, curClass, type));
 
-          set.labels.push(classIdx);
+          set.labels.push(generateLabel(CLASS_NAMES.length, classIdx));
+          
           if (index >= imgNames.length * percent) break;
         }
 
@@ -102,12 +103,13 @@ function tersorization(dataset: OriginalData) {
   // each pos represents a class
   // the value of the pos is 1 means the label is that class
   // tfLabels: (sample_num, class_num)
-  const tfLabels = tf.oneHot(
-    tf.tensor1d(dataset.labels, "int32"),
-    CLASS_NAMES.length,
-    1, // onVlaue
-    0 // offValue
-  );
+  const tfLabels = tf.tensor2d(dataset.labels);
+  // const tfLabels = tf.oneHot(
+  //   tf.tensor1d(dataset.labels, "int32"),
+  //   CLASS_NAMES.length,
+  //   1, // onVlaue
+  //   0 // offValue
+  // );
 
   // tfImgs: (sample_num, width, height, channel)
   const tfImgs = tf.stack(dataset.imgs);

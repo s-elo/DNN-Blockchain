@@ -32,6 +32,7 @@ function getModel() {
   model.add(
     tf.layers.conv2d({
       inputShape: [IMAGE_WIDTH, IMAGE_HEIGHT, IMAGE_CHANNELS],
+      dataFormat: "channelsLast",
       kernelSize: 5,
       filters: 8,
       strides: 1,
@@ -119,4 +120,4 @@ async function train() {
 
 train();
 
-// const evalOutput = model.evaluate(testImages, testLabels); 
+// const evalOutput = model.evaluate(testImages, testLabels);

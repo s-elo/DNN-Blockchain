@@ -1,6 +1,11 @@
 import express from "express";
 import fs from "fs-extra";
-import { getScriptNames, compressScript } from "../server-utils";
+import {
+  getScriptNames,
+  compressScript,
+  addSuffix,
+  splitSuffix,
+} from "../server-utils";
 
 const router = express.Router();
 
@@ -8,7 +13,8 @@ const scriptNames = getScriptNames();
 
 scriptNames.forEach((scriptName) => {
   router.get(`/${scriptName}`, async (_, res) => {
-    const compressPath = await compressScript(scriptName);
+    // to distinguish the typescripts scripts and python scripts
+    const compressPath = await compressScript(...splitSuffix(scriptName));
 
     if (!fs.existsSync(compressPath)) {
       return res.send({ msg: "compression failed" });
