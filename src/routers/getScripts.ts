@@ -27,7 +27,7 @@ scriptNames.forEach((scriptName) => {
       // delete the zip file
       fs.unlink(compressPath);
 
-      res.end();
+      res.end('Script Deliveried');
     });
   });
 });
