@@ -26,8 +26,8 @@ export async function compressScript(scriptName: string, type: SuffixType) {
     );
 
     const outputPath = path.resolve(
-      __dirname,
-      "../",
+      __dirname,                     
+      "../",                        
       `public/${scriptName}.zip`
     );
 
@@ -65,3 +65,15 @@ export const addSuffix = (scriptNames: string[], suffix: SuffixType) =>
 
 export const splitSuffix = (scriptName: string) =>
   scriptName.split("-") as [string, SuffixType];
+
+export function getFileNames(path: string) {
+  const fileNames: string[] = [];
+
+  return new Promise(res => {
+    const names = fs.readdirSync(path);
+
+    names.forEach(name => {
+      
+    })
+  });
+}

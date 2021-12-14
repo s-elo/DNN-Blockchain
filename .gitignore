@@ -9,3 +9,5 @@ dist
 *.zip
 
 logs
+
+__pycache__

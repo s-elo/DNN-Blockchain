@@ -33,17 +33,31 @@ function getModel() {
     tf.layers.conv2d({
       inputShape: [IMAGE_WIDTH, IMAGE_HEIGHT, IMAGE_CHANNELS],
       dataFormat: "channelsLast",
-      kernelSize: 5,
-      filters: 8,
+      kernelSize: 3,
+      filters: 64,
       strides: 1,
       activation: "relu",
-      kernelInitializer: "varianceScaling",
+      kernelInitializer: 'varianceScaling',
+      padding: 'same'
+    })
+  );
+
+  model.add(
+    tf.layers.conv2d({
+      // inputShape: [IMAGE_WIDTH, IMAGE_HEIGHT, IMAGE_CHANNELS],
+      dataFormat: "channelsLast",
+      kernelSize: 3,
+      filters: 64,
+      strides: 1,
+      activation: "relu",
+      kernelInitializer: 'varianceScaling',
+      padding: 'same'
     })
   );
 
   // The MaxPooling layer acts as a sort of downsampling using max values
   // in a region instead of averaging.
-  model.add(tf.layers.maxPooling2d({ poolSize: [2, 2], strides: [2, 2] }));
+  model.add(tf.layers.maxPooling2d({ poolSize: [2, 2], strides: [2, 2], padding: 'same' }));
 
   // Repeat another conv2d + maxPooling stack.
   // Note that we have more filters in the convolution.
@@ -54,6 +68,7 @@ function getModel() {
       strides: 1,
       activation: "relu",
       kernelInitializer: "varianceScaling",
+      padding: 'same'
     })
   );
   model.add(tf.layers.maxPooling2d({ poolSize: [2, 2], strides: [2, 2] }));

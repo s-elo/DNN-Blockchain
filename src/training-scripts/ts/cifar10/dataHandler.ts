@@ -79,7 +79,7 @@ export function getData(type: "TRAIN" | "TEST", percent: number = 1) {
           set.imgs.push(getSingleImgTensor(imgName, curClass, type));
 
           set.labels.push(generateLabel(CLASS_NAMES.length, classIdx));
-          
+
           if (index >= imgNames.length * percent) break;
         }
 
@@ -96,30 +96,25 @@ export function getData(type: "TRAIN" | "TEST", percent: number = 1) {
 }
 
 function tersorization(dataset: OriginalData) {
-  // return tf.data.zip({
-  //   xs: tf.data.array(dataset.imgs),
-  //   ys: tf.data.array(dataset.labels),
-  // });
-  // each pos represents a class
-  // the value of the pos is 1 means the label is that class
-  // tfLabels: (sample_num, class_num)
-  const tfLabels = tf.tensor2d(dataset.labels);
-  // const tfLabels = tf.oneHot(
-  //   tf.tensor1d(dataset.labels, "int32"),
-  //   CLASS_NAMES.length,
-  //   1, // onVlaue
-  //   0 // offValue
-  // );
+  return tf.tidy(() => {
+    // each pos represents a class
+    // the value of the pos is 1 means the label is that class
+    // tfLabels: (sample_num, class_num)
+    const tfLabels = tf.tensor2d(dataset.labels);
+    // const tfLabels = tf.oneHot(
+    //   tf.tensor1d(dataset.labels, "int32"),
+    //   CLASS_NAMES.length,
+    //   1, // onVlaue
+    //   0 // offValue
+    // );
 
-  // tfImgs: (sample_num, width, height, channel)
-  const tfImgs = tf.stack(dataset.imgs);
-  return {
-    imgs: tfImgs.div(255),
-    labels: tfLabels,
-  };
-  // return tf.tidy(() => {
-
-  // });
+    // tfImgs: (sample_num, width, height, channel)
+    const tfImgs = tf.stack(dataset.imgs);
+    return {
+      imgs: tfImgs.div(255),
+      labels: tfLabels,
+    };
+  });
 }
 
 export function getDataset(type: "TRAIN" | "TEST", percent: number = 1) {
