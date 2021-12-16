@@ -17,7 +17,7 @@ EPOCH = 100
 def train():
     gen = dataAugment(train_imgs, train_labels, batch_size=BATCH_SIZE)
 
-    model = getModel(train_imgs.shape[1:], KERNEL_SIZE, CLASS_NUM, reg=True)
+    model = getModel(train_imgs.shape[1:], KERNEL_SIZE, CLASS_NUM, reg=True, normal=True)
 
     model.summary()
 

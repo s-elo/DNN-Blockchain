@@ -8,28 +8,40 @@ def getModel(input_shape, kernel_size, class_num, reg=False, normal=False):
     # stage 1
     model.add(layers.Conv2D(filters=64, strides=1, kernel_size=kernel_size, activation='relu',
                             input_shape=input_shape, kernel_initializer='he_normal', padding='same'))
+    if (normal):
+        model.add(layers.BatchNormalization())
 
     model.add(layers.Conv2D(filters=64, strides=1, kernel_size=kernel_size, activation='relu',
                             kernel_initializer='he_normal', padding='same'))
+    if (normal):
+        model.add(layers.BatchNormalization())
 
     model.add(layers.MaxPooling2D(pool_size=2, strides=2, padding='same'))
 
     # stage 2
     model.add(layers.Conv2D(filters=128, strides=1, kernel_size=kernel_size, activation='relu',
                             kernel_initializer='he_normal', padding='same'))
+    if (normal):
+        model.add(layers.BatchNormalization())
 
     model.add(layers.Conv2D(filters=128, strides=1, kernel_size=kernel_size, activation='relu',
                             kernel_initializer='he_normal', padding='same'))
+    if (normal):
+        model.add(layers.BatchNormalization())
 
     model.add(layers.MaxPooling2D(pool_size=2, strides=2, padding='same'))
 
     # stage 3
     model.add(layers.Conv2D(filters=256, strides=1, kernel_size=kernel_size, activation='relu',
                             kernel_initializer='he_normal', padding='same'))
+    if (normal):
+        model.add(layers.BatchNormalization())
 
     model.add(layers.Conv2D(filters=256, strides=1, kernel_size=kernel_size, activation='relu',
                             kernel_initializer='he_normal', padding='same'))
-
+    if (normal):
+        model.add(layers.BatchNormalization())
+        
     model.add(layers.MaxPooling2D(pool_size=2, strides=2, padding='same'))
 
     # flatten as one dimension
