@@ -1,19 +1,22 @@
+import collections
+import numpy as np
 import tensorflow as tf
+import tensorflow_federated as tff
 from dataHandler import load_split_train_data, load_data, dataAugment, CLASS_NUM
 from model import getModel
 
-print('Loading data...')
-dataset = load_split_train_data()
-test_imgs, test_labels = load_data(type='TEST')
-print('Data loaded.')
-print(len(dataset), dataset[0][0].shape, dataset[0][1].shape)
+# print('Loading data...')
+# dataset = load_split_train_data()
+# test_imgs, test_labels = load_data(type='TEST')
+# print('Data loaded.')
+# print(len(dataset), dataset[0][0].shape, dataset[0][1].shape)
 
 KERNEL_SIZE = 3
 BATCH_SIZE = 64
 EPOCH = 100
 
 
-def split_train():
+def split_train(dataset, test_imgs, test_labels):
     model = getModel(test_imgs.shape[1:], KERNEL_SIZE, CLASS_NUM)
 
     model.summary()
@@ -42,4 +45,4 @@ def split_train():
                   validation_data=(test_imgs, test_labels), callbacks=[tensorboard_callback])
 
 
-split_train()
+# split_train(dataset, test_imgs, test_labels)
