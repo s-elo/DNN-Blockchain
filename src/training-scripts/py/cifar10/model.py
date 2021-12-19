@@ -57,8 +57,4 @@ def getModel(input_shape, kernel_size, class_num, reg=False, normal=False):
     model.add(layers.Dense(units=class_num, activation='softmax',
               kernel_initializer='he_normal', kernel_regularizer='l2' if reg else None))
 
-    model.compile(optimizer=tf.keras.optimizers.Adam(),
-                  loss='categorical_crossentropy',
-                  metrics=['accuracy'])
-
     return model

@@ -13,7 +13,7 @@ from model import getModel
 
 KERNEL_SIZE = 3
 BATCH_SIZE = 64
-EPOCH = 100
+EPOCH = 50
 
 
 def split_train(dataset, test_imgs, test_labels):

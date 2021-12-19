@@ -11,3 +11,5 @@ dist
 logs
 
 __pycache__
+
+.vscode
