@@ -2,7 +2,7 @@ import tensorflow as tf
 from tensorflow.keras import layers, models
 
 
-def getModel(input_shape, kernel_size, class_num, reg=False, normal=False):
+def getModel(input_shape, kernel_size, class_num, reg=True, normal=True):
     model = models.Sequential()
 
     # stage 1
