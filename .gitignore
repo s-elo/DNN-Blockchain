@@ -13,3 +13,5 @@ logs
 __pycache__
 
 .vscode
+
+ret_img

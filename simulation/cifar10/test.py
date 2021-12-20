@@ -1,8 +1,13 @@
-import collections
 import numpy as np
+import matplotlib.pyplot as plt
 import tensorflow as tf
 from dataHandler import load_split_train_data, load_data, dataAugment, CLASS_NUM
 from model import getModel
+import shutil
+import os
+
+shutil.rmtree('./ret_img')
+os.mkdir('./ret_img')
 
 print('Loading data...')
 dataset = load_split_train_data()
@@ -12,7 +17,17 @@ print(len(dataset), dataset[0][0].shape, dataset[0][1].shape)
 
 KERNEL_SIZE = 3
 BATCH_SIZE = 64
-EPOCH = 20
+EPOCH = 2
+ROUND = 2
+USER_NUM = 5
+
+users_acc = [[]]*USER_NUM
+users_val_acc = [[]]*USER_NUM
+users_loss = [[]]*USER_NUM
+users_val_loss = [[]]*USER_NUM
+
+overall_val_acc = []*ROUND
+overall_val_loss = []*ROUND
 
 model = getModel(test_imgs.shape[1:], KERNEL_SIZE, CLASS_NUM)
 
@@ -26,11 +41,6 @@ model.summary()
 def split_train(model, dataset, test_imgs, test_labels):
     weights = model.get_weights()
 
-    log_dir = "./logs/fit/"
-
-    tensorboard_callback = tf.keras.callbacks.TensorBoard(
-        log_dir=log_dir, histogram_freq=1)
-
     new_weights = []
     for batchIdx in range(0, len(dataset)):
         print('\n')
@@ -43,8 +53,18 @@ def split_train(model, dataset, test_imgs, test_labels):
 
         model.set_weights(weights)
 
-        model.fit(x=gen,  epochs=EPOCH, steps_per_epoch=train_imgs.shape[0] // BATCH_SIZE,
-                  validation_data=(test_imgs, test_labels), callbacks=[tensorboard_callback])
+        h = model.fit(x=gen,  epochs=EPOCH, steps_per_epoch=train_imgs.shape[0] // BATCH_SIZE,
+                      validation_data=(test_imgs, test_labels))
+
+        acc = h.history['accuracy']
+        loss = h.history['loss']
+        val_acc = h.history['val_accuracy']
+        val_loss = h.history['val_loss']
+
+        users_acc[batchIdx] += (acc)
+        users_val_acc[batchIdx] += (val_acc)
+        users_loss[batchIdx] += (loss)
+        users_val_loss[batchIdx] += (val_loss)
 
         new_weights.append(model.get_weights())
 
@@ -63,11 +83,9 @@ def fedAvg(model, new_weights=[]):
     return model
 
 
-ROUND = 6
-
-
 def fl():
     avg_model = model
+
     for i in range(0, ROUND):
         print('\n')
         print('================Round' + str(i + 1) + '=================')
@@ -75,7 +93,45 @@ def fl():
         new_weights = split_train(avg_model, dataset, test_imgs, test_labels)
         avg_model = fedAvg(model, new_weights)
 
-        avg_model.evaluate(test_imgs, test_labels)
+        print('Evaluation')
+        loss, acc = avg_model.evaluate(test_imgs, test_labels)
 
+        overall_val_acc.append(acc)
+        overall_val_loss.append(loss)
+
+
+    for user in range(0, USER_NUM):
+        plt.figure()
+        plt.title("user" + str(user + 1) + " accuracy along rounds")
+        plt.plot(users_acc[user], label='user_acc' + str(user + 1))
+        plt.plot(users_val_acc[user], label='user_val_acc' + str(user + 1))
+        plt.xlabel('epoch')
+        plt.ylabel('accuracy')
+        plt.legend()
+        plt.savefig('./ret_img/user' + str(user + 1) + '_acc.png')
+
+        plt.figure()
+        plt.title("user" + str(user + 1) + " loss along rounds")
+        plt.plot(users_loss[user], label='user_loss' + str(user + 1))
+        plt.plot(users_val_loss[user], label='user_val_loss' + str(user + 1))
+        plt.xlabel('epoch')
+        plt.ylabel('loss')
+        plt.legend()
+        plt.savefig('./ret_img/user' + str(user + 1) + '_loss.png')
+
+    plt.figure()
+    plt.plot(overall_val_acc, label='overall accuracy')
+    plt.xlabel('round')
+    plt.ylabel('accuracy')
+    plt.legend()
+    plt.savefig('./ret_img/overall_acc.png')
+
+    plt.figure()
+    plt.plot(overall_val_loss, label='overall loss')
+    plt.xlabel('round')
+    plt.ylabel('loss')
+    plt.legend()
+    plt.savefig('./ret_img/overall_loss.png')
 
 fl()
+plt.show()
