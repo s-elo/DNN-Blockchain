@@ -17,8 +17,8 @@ print(len(dataset), dataset[0][0].shape, dataset[0][1].shape)
 
 KERNEL_SIZE = 3
 BATCH_SIZE = 64
-EPOCH = 2
-ROUND = 2
+EPOCH = 20
+ROUND = 10
 USER_NUM = 5
 
 users_acc = [[]]*USER_NUM
@@ -61,10 +61,11 @@ def split_train(model, dataset, test_imgs, test_labels):
         val_acc = h.history['val_accuracy']
         val_loss = h.history['val_loss']
 
-        users_acc[batchIdx] += (acc)
-        users_val_acc[batchIdx] += (val_acc)
-        users_loss[batchIdx] += (loss)
-        users_val_loss[batchIdx] += (val_loss)
+        users_acc[batchIdx] = users_acc[batchIdx] + acc
+
+        users_val_acc[batchIdx] = users_val_acc[batchIdx] + val_acc
+        users_loss[batchIdx] = users_loss[batchIdx] + loss
+        users_val_loss[batchIdx] = users_val_loss[batchIdx] + val_loss
 
         new_weights.append(model.get_weights())
 
@@ -99,7 +100,6 @@ def fl():
         overall_val_acc.append(acc)
         overall_val_loss.append(loss)
 
-
     for user in range(0, USER_NUM):
         plt.figure()
         plt.title("user" + str(user + 1) + " accuracy along rounds")
@@ -132,6 +132,7 @@ def fl():
     plt.ylabel('loss')
     plt.legend()
     plt.savefig('./ret_img/overall_loss.png')
+
 
 fl()
 plt.show()
