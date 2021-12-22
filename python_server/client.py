@@ -9,9 +9,9 @@ SERVER_PORT = '5000'
 client = Flask(__name__)
 
 
-resp = rq.get(f'{SERVER_DOMAIN}:{SERVER_PORT}/cifar10?port=3250').json()
+# resp = rq.get(f'{SERVER_DOMAIN}:{SERVER_PORT}/cifar10?port=3250').json()
 
-print(resp)
+# print(resp)
 
 
 @client.route('/', methods=['POST'])

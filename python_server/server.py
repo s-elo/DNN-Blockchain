@@ -1,5 +1,5 @@
 from flask import Flask, jsonify, request
-import requests
+import requests as rq
 import time
 import threading
 
@@ -20,7 +20,7 @@ def main():
 
         print(clients)
         for client in clients:
-            resp = requests.post(client, json={'data': 'hello!'})
+            resp = rq.post(client, json={'data': 'hello!'})
 
             print(resp.json())
 
