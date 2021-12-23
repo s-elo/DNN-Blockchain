@@ -3,15 +3,16 @@ import fs from "fs-extra";
 import {
   getScriptNames,
   compressScript,
-  addSuffix,
   splitSuffix,
 } from "../server-utils";
 
 const router = express.Router();
 
 const scriptNames = getScriptNames();
+console.log(scriptNames);
 
 scriptNames.forEach((scriptName) => {
+  // /get-scripts/{scriptName(with suffix)}
   router.get(`/${scriptName}`, async (_, res) => {
     // to distinguish the typescripts scripts and python scripts
     const compressPath = await compressScript(...splitSuffix(scriptName));

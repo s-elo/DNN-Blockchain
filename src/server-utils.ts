@@ -2,22 +2,32 @@ import path from "path";
 import fs from "fs-extra";
 import archiver from "archiver";
 
-// to distinguish the typescripts scripts and python scripts
-const tsScriptsPath = path.resolve(__dirname, ".", "training-scripts/ts");
-const pyScriptsPath = path.resolve(__dirname, ".", "training-scripts/py");
-
 export function getScriptNames() {
-  const tsScriptNames = fs
-    .readdirSync(tsScriptsPath)
-    .filter((script) => script !== "template");
-  const pyScriptNames = fs
-    .readdirSync(pyScriptsPath)
-    .filter((script) => script !== "template");
+  // get the types of the scripts
+  const scriptTypes = fs.readdirSync(
+    path.resolve(__dirname, ".", "training-scripts")
+  );
 
-  return [...addSuffix(tsScriptNames, "ts"), ...addSuffix(pyScriptNames, "py")];
+  const scriptNames = scriptTypes.reduce((names, curType) => {
+    // get the current type path
+    const curTypePath = path.resolve(
+      __dirname,
+      ".",
+      `training-scripts/${curType}`
+    );
+
+    // get the script names of the current type ieg: py
+    const curScriptNames = fs
+      .readdirSync(curTypePath)
+      .filter((script) => script !== "template");
+
+    return names.concat(...addSuffix(curScriptNames, curType));
+  }, [] as string[]);
+
+  return scriptNames;
 }
 
-export function compressScript(scriptName: string, type: SuffixType) {
+export function compressScript(scriptName: string, type: string) {
   return new Promise<string>(async (res, rej) => {
     const scriptDirPath = path.resolve(
       __dirname,
@@ -76,13 +86,11 @@ export function compressScript(scriptName: string, type: SuffixType) {
   });
 }
 
-type SuffixType = "ts" | "py";
-
-export const addSuffix = (scriptNames: string[], suffix: SuffixType) =>
+export const addSuffix = (scriptNames: string[], suffix: string) =>
   scriptNames.map((name) => `${name}-${suffix}`);
 
 export const splitSuffix = (scriptName: string) =>
-  scriptName.split("-") as [string, SuffixType];
+  scriptName.split("-") as [string, string];
 
 export function getFileNames(dirPath: string) {
   return new Promise<string[]>((res) => {
