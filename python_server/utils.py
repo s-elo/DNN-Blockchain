@@ -5,23 +5,8 @@ import time
 import requests as rq
 
 
-def get_host_ip():
-    try:
-        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        s.connect(('8.8.8.8', 80))
-        ip = s.getsockname()[0]
-    finally:
-        s.close()
-
-    return ip
-
-
 class DL:
     def __init__(self, applications: List[str], client_num, train_round) -> None:
-        self.utils = {
-            'get_host_ip': get_host_ip,
-        }
-
         # fiex value for each model
         self.client_num = client_num
         # fiex value for all model, each user has to do the number of this round
@@ -34,8 +19,8 @@ class DL:
             self.clients[m] = []
 
     # boardcast the corresponding model params for the application task
-    def boardcast_params(self, application, model={}, delay=5):
-        client_list = self.clients[application]
+    def boardcast_params(self, modelName, model={}, delay=5):
+        client_list = self.clients[modelName]
 
         if (len(client_list) == 0):
             return []
@@ -67,6 +52,15 @@ class DL:
 
         return ret
 
+    def handle_boardcast_results(self, ret):
+        pass
+
+    # first response than boardcast
+    def async_boardcast(self, modelName, model={}, delay=5):
+        boardcast_thread = threading.Thread(
+            target=self.boardcast_params, args=(modelName, model, delay))
+        boardcast_thread.start()
+
     def is_contained(self, modelName, client_url):
         if any(client['client_url'] == client_url for client in self.clients[modelName]):
             return True
@@ -83,27 +77,46 @@ class DL:
             self.clients[modelName].append({
                 'client_url': client_url,
                 'trained_model': trained_model,
-                'round': 0  # record how many rounds has joined
+                'round': 1  # record how many rounds has joined
             })
             return False
 
     def add_round(self, modelName, client_url):
-        clients = self.clients[modelName]
-        for client in clients:
-            if client['client_url'] == client_url:
-                client['round'] = client['round'] + 1
-                return
+        client = self.get_client(modelName, client_url)
+
+        if client != None:
+            client['round'] = client['round'] + 1
 
     def get_client_num(self, modelName):
         return len(self.clients[modelName])
 
+    def get_client(self, modelName, client_url):
+        for client in self.clients[modelName]:
+            if (client['client_url'] == client_url):
+                return client
+
+        return None
+
+    def get_rounds(self, modelName, client_url):
+        client = self.get_client(modelName, client_url)
+
+        if client != None:
+            return client['round']
+        else:
+            return 0
+
+    # remove the model if it is done
     def is_done(self, modelName):
         print('evaluating the averaged params...')
 
-    # each client must be at the train_round
-    # only called after calling can_average, which means all the clients have the same round
-    def is_client_done(self, modelName):
-        return self.clients[modelName][0]['round'] == self.train_round
+    # see if the cilent has joined for {train_round} rounds
+    def is_client_done(self, modelName, client_url):
+        client = self.get_client(modelName, client_url)
+
+        if client != None:
+            return client['round'] == self.train_round
+        else:
+            return False
 
     # check if the averaging condition is met
     def can_average(self, modelName):

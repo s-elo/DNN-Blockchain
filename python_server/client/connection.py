@@ -1,4 +1,5 @@
 import requests as rq
+import os
 
 
 class Connector:
@@ -10,6 +11,7 @@ class Connector:
         self.application = application
 
         self.server_addr = f'{server_domain}:{server_port}/{application}'
+        self.round = 1
 
     def get_model(self):
         # get the model from server for simulation
@@ -36,14 +38,14 @@ class Connector:
             json_data = resp.json()
 
             if (json_data['err'] == 0):
+                self.round = json_data['round']
+
                 if (json_data['isDone']):
                     return 1
                 else:
                     if json_data['needWait']:
                         return 0
                     else:
-                        print(
-                            f'joined the {self.application} training and get the model')
                         return 2
         else:
             return -1

@@ -5,7 +5,7 @@ import threading
 from utils import DL
 
 CLIENT_NUM_LIMIT = 2
-TRAIN_ROUND = 2
+TRAIN_ROUND = 3
 dl = DL(['cifar10'], CLIENT_NUM_LIMIT, TRAIN_ROUND)
 
 app = Flask(__name__)
@@ -40,40 +40,46 @@ def join_training(modelName):
 
     canAvg = dl.can_average(modelName)
 
+    cur_round = dl.get_rounds(modelName, client_url)
+
     if beenAdded:
         # for next round
         if canAvg:
-            print('avging the params')
-            isDone = dl.is_client_done(modelName)
+            print(f'avging the params of {modelName} for round {cur_round}...')
+            # can average means all the clients are at the same round
+            isDone = dl.is_client_done(modelName, client_url)
             time.sleep(5)
 
             if isDone:
                 # tell all the cilents that is done
-                dl.boardcast_params(modelName, {'isDone': True, 'model': None})
-
+                # dl.async_boardcast(modelName, {'isDone': True, 'model': None})
+                # since this must be the last done clients
                 dl.clear_clients(modelName)
 
-                return jsonify(err=0, isDone=True, needWait=False)
+                return jsonify(err=0, isDone=True, needWait=False, round=cur_round)
             else:
-                dl.boardcast_params(
-                    modelName, {'model': 'avgModel', 'isDone': False})
+                dl.async_boardcast(
+                    modelName, {'model': 'avgModel'})
 
-                return jsonify(err=0, isDone=False, needWait=False)
+                return jsonify(err=0, isDone=False, needWait=False, round=cur_round)
         else:
-            # waiting for other clients to follow
-            return jsonify(err=0, isDone=False, needWait=True)
+            # see if this client has done all the rounds
+            isDone = dl.is_client_done(modelName, client_url)
+            # waiting for other clients to follow if it is not done
+            return jsonify(err=0, isDone=isDone, needWait=False if isDone else True, round=cur_round)
     else:
         # first time join the training
         if canAvg:
-            print('avging the params')
+            print(f'avging the params of {modelName} for round {cur_round}...')
             time.sleep(5)
 
-            dl.boardcast_params(
-                modelName, {'model': 'avgModel', 'isDone': False})
+            dl.async_boardcast(
+                modelName, {'model': 'avgModel'})
+
             # first time must be not done
-            return jsonify(err=0, isDone=False, needWait=False)
+            return jsonify(err=0, isDone=False, needWait=False, round=cur_round)
         else:
-            return jsonify(err=0, isDone=False, needWait=True)
+            return jsonify(err=0, isDone=False, needWait=True, round=cur_round)
 
 
 if __name__ == '__main__':
