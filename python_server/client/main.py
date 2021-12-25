@@ -4,17 +4,18 @@ import time
 import sys
 import os
 from connection import Connector
-from train import train
+from train import process_training
 import threading
 
 SERVER_DOMAIN = 'http://localhost'
 SERVER_PORT = '5000'
 
+# default port is 3250
 PORT = sys.argv[1] if len(sys.argv) >= 2 else '3250'
 
-application = 'cifar10'
+modelName = 'cifar10'
 
-connector = Connector(SERVER_DOMAIN, SERVER_PORT, PORT, application)
+connector = Connector(SERVER_DOMAIN, SERVER_PORT, PORT, modelName)
 
 # request to join the training and get the model
 model = connector.get_model()
@@ -23,39 +24,16 @@ if model == None:
     print('seems the server/blockchain has a bit problem, try again next time')
     os._exit(0)
 
-
-def process_training(model):
-    model_params, model_archi = train(model)
-
-    status = connector.join_training(model_params, model_archi)
-
-    if status == 0:
-        # the server will boardcast
-        print(f'wating for other clients to train round {connector.round}...')
-    elif status == 1:
-        print('done training')
-        async_shutdown()
-        print('shutting down...')
-
-    elif status == -1:
-        print('request wrong... just wait')
-    elif status == 2:
-        # the server will boardcast
-        print(f'about to get the model for round {connector.round + 1}')
-
+# check if can be joined
+status = connector.join_training(None, None)
+if status == -2:  # can not join, join next time
+    time.sleep(2)
+    os._exit(0)
 
 # execute for the first time
-train_process_thread = threading.Thread(target=process_training, args=(model,))
+train_process_thread = threading.Thread(
+    target=process_training, args=(model, connector))
 train_process_thread.start()
-
-
-def async_shutdown():
-    def shutdown():
-        time.sleep(5)
-        os._exit(0)
-
-    shutdown_thread = threading.Thread(target=shutdown)
-    shutdown_thread.start()
 
 
 client = Flask(__name__)
@@ -68,7 +46,7 @@ def get_boardcast():
     model = boardcast_data['model']
 
     print('\n')
-    process_training(model)
+    process_training(model, connector)
 
     return jsonify(
         get=True

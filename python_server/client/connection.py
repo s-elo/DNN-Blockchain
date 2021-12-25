@@ -3,15 +3,15 @@ import os
 
 
 class Connector:
-    def __init__(self, server_domain, server_port, self_port, application) -> None:
+    def __init__(self, server_domain, server_port, self_port, modelName) -> None:
         self.server_addr = server_domain
         self.server_port = server_port
 
         self.self_port = self_port
-        self.application = application
+        self.modelName = modelName
 
-        self.server_addr = f'{server_domain}:{server_port}/{application}'
-        self.round = 1
+        self.server_addr = f'{server_domain}:{server_port}/{modelName}'
+        self.round = 0
 
     def get_model(self):
         # get the model from server for simulation
@@ -26,8 +26,10 @@ class Connector:
         - 1: done
         - -1: request wrong
         - 2: not done no waiting (get average model)
+        - -2: client number overflow, can not join
+        - 3: can join
         """
-        print(f'requesting to join the {self.application} training...')
+        print(f'requesting to join the {self.modelName} training...')
 
         # request to join the training process
         resp = rq.post(self.server_addr, json={
@@ -37,7 +39,7 @@ class Connector:
         if (resp.status_code == 200):
             json_data = resp.json()
 
-            if (json_data['err'] == 0):
+            if (json_data['isFirstTime'] == False):
                 self.round = json_data['round']
 
                 if (json_data['isDone']):
@@ -47,5 +49,8 @@ class Connector:
                         return 0
                     else:
                         return 2
+            else:
+                print(json_data['msg'])
+                return (3 if json_data['canJoin'] else -2)
         else:
             return -1

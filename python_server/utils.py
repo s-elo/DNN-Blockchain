@@ -1,21 +1,20 @@
 from typing import List
-import socket
 import threading
 import time
 import requests as rq
 
 
 class DL:
-    def __init__(self, applications: List[str], client_num, train_round) -> None:
+    def __init__(self, modelNames: List[str], client_num, train_round) -> None:
         # fiex value for each model
         self.client_num = client_num
         # fiex value for all model, each user has to do the number of this round
         self.train_round = train_round
 
         self.clients = {}
-        self.applications = applications
+        self.modelNames = modelNames
         # each model has multiple clients
-        for m in self.applications:
+        for m in self.modelNames:
             self.clients[m] = []
 
     # boardcast the corresponding model params for the application task
@@ -68,18 +67,29 @@ class DL:
             return False
 
     # return True to indicate it has been added
-    def add_client(self, modelName, client_url, trained_model):
+    def add_client(self, modelName, client_url, trained_model=None):
+        """
+        return:
+        - -1: can not be added, reach maximum number of clients
+        - 0: not been added before, and added
+        - 1: added before, no need added, but increment the round
+        """
         if (self.is_contained(modelName, client_url)):
             # add the round
             self.add_round(modelName, client_url)
-            return True
+            return 1
         else:
+            if (self.get_client_num(modelName) == self.client_num):
+                return -1
+
             self.clients[modelName].append({
                 'client_url': client_url,
                 'trained_model': trained_model,
-                'round': 1  # record how many rounds has joined
+                # record how many rounds has joined
+                # 0 means just for check without providing trained model (None)
+                'round': 0
             })
-            return False
+            return 0
 
     def add_round(self, modelName, client_url):
         client = self.get_client(modelName, client_url)
@@ -105,8 +115,8 @@ class DL:
         else:
             return 0
 
-    # remove the model if it is done
-    def is_done(self, modelName):
+    # remove the model if it is done (accuracy is reached certain point)
+    def is_model_done(self, modelName):
         print('evaluating the averaged params...')
 
     # see if the cilent has joined for {train_round} rounds

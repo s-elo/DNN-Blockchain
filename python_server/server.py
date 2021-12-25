@@ -36,13 +36,13 @@ def join_training(modelName):
     }
 
     # add to the corresponding application model
-    beenAdded = dl.add_client(modelName, client_url, trained_model)
+    added_status = dl.add_client(modelName, client_url, trained_model)
 
     canAvg = dl.can_average(modelName)
 
     cur_round = dl.get_rounds(modelName, client_url)
 
-    if beenAdded:
+    if added_status == 1:  # been added before
         # for next round
         if canAvg:
             print(f'avging the params of {modelName} for round {cur_round}...')
@@ -56,30 +56,23 @@ def join_training(modelName):
                 # since this must be the last done clients
                 dl.clear_clients(modelName)
 
-                return jsonify(err=0, isDone=True, needWait=False, round=cur_round)
+                return jsonify(isFirstTime=False, isDone=True, needWait=False, round=cur_round)
             else:
                 dl.async_boardcast(
                     modelName, {'model': 'avgModel'})
 
-                return jsonify(err=0, isDone=False, needWait=False, round=cur_round)
+                return jsonify(isFirstTime=False, isDone=False, needWait=False, round=cur_round)
         else:
             # see if this client has done all the rounds
             isDone = dl.is_client_done(modelName, client_url)
             # waiting for other clients to follow if it is not done
-            return jsonify(err=0, isDone=isDone, needWait=False if isDone else True, round=cur_round)
-    else:
-        # first time join the training
-        if canAvg:
-            print(f'avging the params of {modelName} for round {cur_round}...')
-            time.sleep(5)
-
-            dl.async_boardcast(
-                modelName, {'model': 'avgModel'})
-
-            # first time must be not done
-            return jsonify(err=0, isDone=False, needWait=False, round=cur_round)
-        else:
-            return jsonify(err=0, isDone=False, needWait=True, round=cur_round)
+            return jsonify(isFirstTime=False, isDone=isDone, needWait=False if isDone else True, round=cur_round)
+    elif added_status == 0:  # not been added before
+        # first time join the training just for check without trained model
+        # first time must be not done
+        return jsonify(isFirstTime=True, canJoin=True, msg=f'joined the training of {modelName}')
+    elif added_status == -1:  # reach maximum number
+        return jsonify(isFirstTime=True, canJoin=False, msg=f'maximum client number is {dl.client_num}, you can join another time')
 
 
 if __name__ == '__main__':
