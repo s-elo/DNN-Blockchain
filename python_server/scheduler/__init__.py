@@ -2,22 +2,45 @@ from typing import List
 import threading
 import time
 import requests as rq
+from testset import get_testset
+from scheduler.utils import str_to_model, model_to_str
 
 
-class DL:
+class Utils:
+    def __init__(self) -> None:
+        self.str_to_model = str_to_model
+        self.model_to_str = model_to_str
+
+
+class Scheduler:
     def __init__(self, modelNames: List[str], client_num, train_round) -> None:
+        self.utils = Utils()
+
         # fiex value for each model
         self.client_num = client_num
         # fiex value for all model, each user has to do the number of this round
         self.train_round = train_round
 
         self.clients = {}
+        self.models = {}
+
         self.modelNames = modelNames
-        # each model has multiple clients
+
         for m in self.modelNames:
+            # each model has multiple clients
             self.clients[m] = []
 
+            testset = get_testset(m)
+
+            model_info = {
+                'testset': testset,
+                'model': None
+            }
+
+            self.models[m] = model_info
+
     # boardcast the corresponding model params for the application task
+
     def boardcast_params(self, modelName, model={}, delay=5):
         client_list = self.clients[modelName]
 
@@ -146,6 +169,11 @@ class DL:
 
     def clear_clients(self, modelName):
         self.clients[modelName] = []
+
+    # evaluate the accuracy of a certain model
+    def evaluate(self, modelName):
+        testset = self.models[modelName]['testset']
+        pass
 
 
 if __name__ == '__main__':

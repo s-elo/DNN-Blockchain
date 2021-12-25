@@ -4,13 +4,14 @@ import os
 
 
 def train(model):
+    print(len(model['params']))
     time.sleep(5)
     return 'params', 'archi'
 
 
 def async_shutdown():
     def shutdown():
-        time.sleep(5)
+        time.sleep(2)
         os._exit(0)
 
     shutdown_thread = threading.Thread(target=shutdown)

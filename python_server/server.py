@@ -2,27 +2,30 @@ from flask import Flask, jsonify, request
 import requests as rq
 import time
 import threading
-from utils import DL
+from scheduler import Scheduler
+from get_models import get_model
 
 CLIENT_NUM_LIMIT = 2
 TRAIN_ROUND = 3
-dl = DL(['cifar10'], CLIENT_NUM_LIMIT, TRAIN_ROUND)
+dl = Scheduler(['cifar10'], CLIENT_NUM_LIMIT, TRAIN_ROUND)
 
 app = Flask(__name__)
 
 # every 10 seconds
 TIME_SLOT = 10
 
-# simulate getting the model from blockchain
-
 
 @app.route('/<modelName>', methods=['GET'])
-def get_model(modelName):
-    return jsonify(model=modelName)
+# simulate getting the model from blockchain
+def getModel(modelName):
+    model = get_model(modelName)
+    str_weights, str_model_structure = dl.utils.model_to_str(model)
+
+    return jsonify(model={'params': str_weights, 'archi': str_model_structure})
 
 
 @app.route('/<modelName>', methods=['POST'])
-def join_training(modelName):
+def joinTraining(modelName):
     post_data = request.get_json()
 
     client_addr = request.remote_addr
@@ -46,6 +49,12 @@ def join_training(modelName):
         # for next round
         if canAvg:
             print(f'avging the params of {modelName} for round {cur_round}...')
+
+            avgModel = {
+                'params': 'str',
+                'archi': 'str'
+            }
+            
             # can average means all the clients are at the same round
             isDone = dl.is_client_done(modelName, client_url)
             time.sleep(5)
@@ -59,7 +68,7 @@ def join_training(modelName):
                 return jsonify(isFirstTime=False, isDone=True, needWait=False, round=cur_round)
             else:
                 dl.async_boardcast(
-                    modelName, {'model': 'avgModel'})
+                    modelName, {'model': avgModel})
 
                 return jsonify(isFirstTime=False, isDone=False, needWait=False, round=cur_round)
         else:
