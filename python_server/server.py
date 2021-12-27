@@ -5,7 +5,7 @@ import threading
 from scheduler import Scheduler
 from get_models import get_model
 
-CLIENT_NUM_LIMIT = 1
+CLIENT_NUM_LIMIT = 2
 TRAIN_ROUND = 3
 dl = Scheduler(['cifar10'], CLIENT_NUM_LIMIT, TRAIN_ROUND)
 

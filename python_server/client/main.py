@@ -49,9 +49,8 @@ SET = int(sys.argv[2]) if len(sys.argv) >= 3 else 0
 train_data = dataset[SET]
 print(f'Dataset loaded, find totally {train_data[0].shape[0]} data')
 
-print(f'Training at round {connector.round + 1}')
-
-print(f'training done for round {connector.round + 1}')
+# os.environ['CUDA_VISIBLE_DEVICES'] = '1'
+# os.environ['CUDA_VISIBLE_DEVICES'] = sys.argv[3] if len(sys.argv) >= 4 else '0'
 
 # execute for the first time
 train_process_thread = threading.Thread(
