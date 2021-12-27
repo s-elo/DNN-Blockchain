@@ -5,7 +5,7 @@ import threading
 from scheduler import Scheduler
 from get_models import get_model
 
-CLIENT_NUM_LIMIT = 2
+CLIENT_NUM_LIMIT = 1
 TRAIN_ROUND = 3
 dl = Scheduler(['cifar10'], CLIENT_NUM_LIMIT, TRAIN_ROUND)
 
@@ -50,11 +50,8 @@ def joinTraining(modelName):
         if canAvg:
             print(f'avging the params of {modelName} for round {cur_round}...')
 
-            avgModel = {
-                'params': 'str',
-                'archi': 'str'
-            }
-            
+            avgModel = dl.fedAvg(modelName)
+
             # can average means all the clients are at the same round
             isDone = dl.is_client_done(modelName, client_url)
             time.sleep(5)

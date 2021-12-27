@@ -19,7 +19,7 @@ class Connector:
         model = rq.get(self.server_addr).json()['model']
         return model
 
-    def join_training(self, model_params, model_archi):
+    def join_training(self, model_params: str, model_archi: str):
         """
         return 
         - 0: waiting

@@ -3,13 +3,8 @@ import threading
 import time
 import requests as rq
 from testset import get_testset
-from scheduler.utils import str_to_model, model_to_str
-
-
-class Utils:
-    def __init__(self) -> None:
-        self.str_to_model = str_to_model
-        self.model_to_str = model_to_str
+from scheduler.utils import Utils
+import numpy as np
 
 
 class Scheduler:
@@ -100,6 +95,7 @@ class Scheduler:
         if (self.is_contained(modelName, client_url)):
             # add the round
             self.add_round(modelName, client_url)
+            self.update_model(modelName, client_url, trained_model)
             return 1
         else:
             if (self.get_client_num(modelName) == self.client_num):
@@ -119,6 +115,12 @@ class Scheduler:
 
         if client != None:
             client['round'] = client['round'] + 1
+
+    def update_model(self, modelName, client_url, trained_model):
+        client = self.get_client(modelName, client_url)
+
+        if client != None:
+            client['trained_model'] = trained_model
 
     def get_client_num(self, modelName):
         return len(self.clients[modelName])
@@ -174,6 +176,26 @@ class Scheduler:
     def evaluate(self, modelName):
         testset = self.models[modelName]['testset']
         pass
+
+    def fedAvg(self, modelName):
+        clients = self.clients[modelName]
+
+        sum_weights = 0
+
+        for client in clients:
+            client_model = client['trained_model']
+
+            weights = self.utils.str_to_params(client_model['params'])
+
+            sum_weights += np.array(weights, dtype=object)
+
+        mean_weights = (sum_weights / len(clients)).tolist()
+
+        return {
+            'params': self.utils.params_to_str(mean_weights),
+            # they are all the same
+            'archi': clients[0]['trained_model']['archi']
+        }
 
 
 if __name__ == '__main__':
