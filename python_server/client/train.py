@@ -8,13 +8,10 @@ import tensorflow as tf
 BATCH_SIZE = 64
 EPOCH = 1
 
-
 def train(model, train_data):
     model.compile(optimizer=tf.keras.optimizers.Adam(),
                   loss='categorical_crossentropy',
                   metrics=['accuracy'])
-
-    model.summary()
 
     train_imgs = train_data[0]
     train_labels = train_data[1]
