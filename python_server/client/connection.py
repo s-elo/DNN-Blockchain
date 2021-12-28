@@ -4,7 +4,7 @@ import os
 
 class Connector:
     def __init__(self, server_domain, server_port, self_port, modelName) -> None:
-        self.server_addr = server_domain
+        self.server_domain = server_domain
         self.server_port = server_port
 
         self.self_port = self_port

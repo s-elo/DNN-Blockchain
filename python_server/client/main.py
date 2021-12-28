@@ -21,19 +21,19 @@ MODEL_NAME = 'cifar10'
 connector = Connector(SERVER_DOMAIN, SERVER_PORT, PORT, MODEL_NAME)
 
 # request to join the training and get the model
-# model_ = connector.get_model()
-# print(len(model_['params']), len(model_['archi']))
-# if model_ == None:
-#     print('seems the server/blockchain has a bit problem, try again next time')
-#     os._exit(0)
+model = connector.get_model()
 
-model = getModel(input_shape=(32, 32, 3), kernel_size=3,
-                 class_num=10, reg=True, normal=True)
-p, a = model_to_str(model)
-model = {
-    'params': p,
-    'archi': a
-}
+if model == None:
+    print('seems the server/blockchain has a bit problem, try again next time')
+    os._exit(0)
+
+# model = getModel(input_shape=(32, 32, 3), kernel_size=3,
+#                  class_num=10, reg=True, normal=True)
+# p, a = model_to_str(model)
+# model = {
+#     'params': p,
+#     'archi': a
+# }
 # # check if can be joined
 status = connector.join_training(None, None)
 if status == -2:  # can not join, join next time
