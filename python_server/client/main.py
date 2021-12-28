@@ -7,8 +7,6 @@ from connection import Connector
 from train import process_training, train
 from dataHandler import load_split_train_data
 import threading
-from model import getModel
-from modelStorage import str_to_model, model_to_str
 
 SERVER_DOMAIN = 'http://localhost'
 SERVER_PORT = '5000'
@@ -27,13 +25,6 @@ if model == None:
     print('seems the server/blockchain has a bit problem, try again next time')
     os._exit(0)
 
-# model = getModel(input_shape=(32, 32, 3), kernel_size=3,
-#                  class_num=10, reg=True, normal=True)
-# p, a = model_to_str(model)
-# model = {
-#     'params': p,
-#     'archi': a
-# }
 # # check if can be joined
 status = connector.join_training(None, None)
 if status == -2:  # can not join, join next time
@@ -48,9 +39,6 @@ SET = int(sys.argv[2]) if len(sys.argv) >= 3 else 0
 
 train_data = dataset[SET]
 print(f'Dataset loaded, find totally {train_data[0].shape[0]} data')
-
-# os.environ['CUDA_VISIBLE_DEVICES'] = '1'
-# os.environ['CUDA_VISIBLE_DEVICES'] = sys.argv[3] if len(sys.argv) >= 4 else '0'
 
 # execute for the first time
 train_process_thread = threading.Thread(

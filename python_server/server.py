@@ -5,8 +5,8 @@ import threading
 from scheduler import Scheduler
 from get_models import get_model
 
-CLIENT_NUM_LIMIT = 2
-TRAIN_ROUND = 3
+CLIENT_NUM_LIMIT = 5
+TRAIN_ROUND = 5
 dl = Scheduler(['cifar10'], CLIENT_NUM_LIMIT, TRAIN_ROUND)
 
 app = Flask(__name__)
@@ -18,7 +18,7 @@ TIME_SLOT = 10
 @app.route('/<modelName>', methods=['GET'])
 # simulate getting the model from blockchain
 def getModel(modelName):
-    model = get_model(modelName)
+    model = dl.models[modelName]['model']
     str_weights, str_model_structure = dl.utils.model_to_str(model)
 
     return jsonify(model={'params': str_weights, 'archi': str_model_structure})
@@ -49,12 +49,13 @@ def joinTraining(modelName):
         # for next round
         if canAvg:
             print(f'avging the params of {modelName} for round {cur_round}...')
-
             avgModel = dl.fedAvg(modelName)
+
+            print(f'evaluating the averaged model')
+            dl.evaluate(modelName)
 
             # can average means all the clients are at the same round
             isDone = dl.is_client_done(modelName, client_url)
-            time.sleep(5)
 
             if isDone:
                 # tell all the cilents that is done

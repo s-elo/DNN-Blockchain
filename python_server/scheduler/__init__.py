@@ -5,6 +5,8 @@ import requests as rq
 from testset import get_testset
 from scheduler.utils import Utils
 import numpy as np
+import tensorflow as tf
+from get_models import get_model
 
 
 class Scheduler:
@@ -25,17 +27,15 @@ class Scheduler:
             # each model has multiple clients
             self.clients[m] = []
 
-            testset = get_testset(m)
-
             model_info = {
-                'testset': testset,
-                'model': None
+                'testset': get_testset(m),
+                # get compiled model
+                'model': get_model(m)
             }
 
             self.models[m] = model_info
 
     # boardcast the corresponding model params for the application task
-
     def boardcast_params(self, modelName, model={}, delay=5):
         client_list = self.clients[modelName]
 
@@ -174,8 +174,11 @@ class Scheduler:
 
     # evaluate the accuracy of a certain model
     def evaluate(self, modelName):
-        testset = self.models[modelName]['testset']
-        pass
+        test_x, test_y = self.models[modelName]['testset']
+
+        model = self.models[modelName]['model']
+
+        model.evaluate(test_x, test_y)
 
     def fedAvg(self, modelName):
         clients = self.clients[modelName]
@@ -191,10 +194,12 @@ class Scheduler:
 
         mean_weights = (sum_weights / len(clients)).tolist()
 
+        model = self.models[modelName]['model']
+        model.set_weights(mean_weights)
+
         return {
             'params': self.utils.params_to_str(mean_weights),
-            # they are all the same
-            'archi': clients[0]['trained_model']['archi']
+            'archi': self.utils.structure_to_str(model)
         }
 
 

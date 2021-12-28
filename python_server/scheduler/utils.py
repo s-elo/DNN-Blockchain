@@ -67,6 +67,10 @@ def params_to_str(params):
     return str_weights
 
 
+def structure_to_str(model):
+    return model.to_json()
+
+
 class Utils:
     def __init__(self) -> None:
         self.str_to_model = str_to_model
@@ -74,3 +78,4 @@ class Utils:
         self.str_to_params = str_to_params
         self.str_to_structure = str_to_structure
         self.params_to_str = params_to_str
+        self.structure_to_str = structure_to_str

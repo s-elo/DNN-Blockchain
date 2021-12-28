@@ -1,7 +1,7 @@
 import time
 import threading
 import os
-from modelStorage import str_to_model, model_to_str
+from utils import str_to_model, model_to_str
 from dataHandler import dataAugment
 import tensorflow as tf
 
@@ -22,7 +22,7 @@ if gpus:
 
 
 BATCH_SIZE = 64
-EPOCH = 1
+EPOCH = 20
 
 
 def train(model, train_data):
