@@ -73,3 +73,16 @@ def getModel(input_shape, kernel_size, class_num, reg=True, normal=True):
               kernel_initializer='he_normal', kernel_regularizer='l2' if reg else None))
 
     return model
+
+
+if __name__ == '__main__':
+    print('web3 test here')
+    from web3 import Web3
+
+    w3 = Web3(Web3.HTTPProvider(
+        'https://ropsten.infura.io/v3/ab53629910c440089fda82f82af645f7'))
+
+    print(w3.isConnected())
+    balance = w3.eth.get_balance('0x8eacBB337647ea34eC26804C3339e80EB488587c')
+
+    print(balance)
