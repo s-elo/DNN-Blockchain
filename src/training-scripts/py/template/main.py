@@ -1,41 +1,65 @@
-from test_model import getModel
-from modelStorage import model_to_str, str_to_model
-import tensorflow as tf
-from tensorflow.keras.utils import to_categorical
-import numpy as np
-import json
+from flask import Flask, request, jsonify
+import time
+import sys
+import os
+from connection import Connector
+from train import process_training
+from dataHandler import load_split_train_data
+import threading
 
-EPOCH = 1
-nb_classes = 10
-# Load CIFAR-10 dataset
-(X_train, y_train), (X_test, y_test) = tf.keras.datasets.cifar10.load_data()
+SERVER_DOMAIN = 'http://localhost'
+SERVER_PORT = '5000'
 
-y_train = y_train.reshape(y_train.shape[0])
-y_test = y_test.reshape(y_test.shape[0])
-y_train = to_categorical(y_train, nb_classes)
-y_test = to_categorical(y_test, nb_classes)
+# default port is 3250
+PORT = sys.argv[1] if len(sys.argv) >= 2 else '3250'
 
-X_train = X_train.astype('float32')
-X_test = X_test.astype('float32')
-X_train /= 255
-X_test /= 255
+MODEL_NAME = 'cifar10'
 
-model = getModel((32, 32, 3), 5, 10)
-model.compile(optimizer=tf.keras.optimizers.Adam(),
-              loss='categorical_crossentropy',
-              metrics=['accuracy'])
-model.fit(X_train, y_train, validation_data=(X_test, y_test), epochs=EPOCH)
-model.evaluate(X_test, y_test)
+connector = Connector(SERVER_DOMAIN, SERVER_PORT, PORT, MODEL_NAME)
 
-str_weights, str_model_structure = model_to_str(model)
+# request to join the training and get the model
+model = connector.get_model()
 
-model_new = str_to_model(str_weights, str_model_structure)
+if model == None:
+    print('seems the server/blockchain has a bit problem, try again next time')
+    os._exit(0)
 
-print(model.metrics_names)
+# # check if can be joined
+status = connector.join_training(None, None)
+if status == -2:  # can not join, join next time
+    time.sleep(2)
+    os._exit(0)
 
-model_new.compile(optimizer=tf.keras.optimizers.Adam(),
-                  loss='categorical_crossentropy',
-                  metrics=['accuracy'])
-model_new.evaluate(X_test, y_test)
+# load the training dataset
+print('Loading training dataset...')
+dataset = load_split_train_data()
+# default set is the first set
+SET = int(sys.argv[2]) if len(sys.argv) >= 3 else 0
 
-print(model.metrics_names)
+train_data = dataset[SET]
+print(f'Dataset loaded, find totally {train_data[0].shape[0]} data')
+
+# execute for the first time
+train_process_thread = threading.Thread(
+    target=process_training, args=(model, train_data, connector))
+train_process_thread.start()
+
+
+client = Flask(__name__)
+
+
+@client.route('/', methods=['POST'])
+def get_boardcast():
+    boardcast_data = request.get_json()
+
+    model = boardcast_data['model']
+
+    print('\n')
+    process_training(model, train_data, connector)
+
+    return jsonify(
+        get=True
+    )
+
+
+client.run(host="0.0.0.0", port=PORT, debug=False)

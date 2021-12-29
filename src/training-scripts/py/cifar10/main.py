@@ -1,68 +1,65 @@
-import tensorflow as tf
-from dataHandler import load_data, CLASS_NUM, dataAugment
-from model import getModel
-import numpy as np
-from modelStorage import str_to_model, model_to_str
+from flask import Flask, request, jsonify
+import time
+import sys
+import os
+from connection import Connector
+from train import process_training
+from dataHandler import load_split_train_data
+import threading
 
-print('Loading data...')
-train_imgs, train_labels = load_data(type='TRAIN')
-test_imgs, test_labels = load_data(type='TEST')
+SERVER_DOMAIN = 'http://localhost'
+SERVER_PORT = '5000'
 
-print('Data loaded.')
-# print(train_imgs[0:1], train_labels.shape)
+# default port is 3250
+PORT = sys.argv[1] if len(sys.argv) >= 2 else '3250'
 
-KERNEL_SIZE = 3
-BATCH_SIZE = 256
-EPOCH = 5
+MODEL_NAME = 'cifar10'
+
+connector = Connector(SERVER_DOMAIN, SERVER_PORT, PORT, MODEL_NAME)
+
+# request to join the training and get the model
+model = connector.get_model()
+
+if model == None:
+    print('seems the server/blockchain has a bit problem, try again next time')
+    os._exit(0)
+
+# # check if can be joined
+status = connector.join_training(None, None)
+if status == -2:  # can not join, join next time
+    time.sleep(2)
+    os._exit(0)
+
+# load the training dataset
+print('Loading training dataset...')
+dataset = load_split_train_data()
+# default set is the first set
+SET = int(sys.argv[2]) if len(sys.argv) >= 3 else 0
+
+train_data = dataset[SET]
+print(f'Dataset loaded, find totally {train_data[0].shape[0]} data')
+
+# execute for the first time
+train_process_thread = threading.Thread(
+    target=process_training, args=(model, train_data, connector))
+train_process_thread.start()
 
 
-def train():
-    gen = dataAugment(train_imgs, train_labels, batch_size=BATCH_SIZE)
+client = Flask(__name__)
 
-    model = getModel(train_imgs.shape[1:], KERNEL_SIZE, CLASS_NUM, reg=True, normal=True)
 
-    model.summary()
+@client.route('/', methods=['POST'])
+def get_boardcast():
+    boardcast_data = request.get_json()
 
-    log_dir = "./logs/fit/"
+    model = boardcast_data['model']
 
-    tensorboard_callback = tf.keras.callbacks.TensorBoard(
-        log_dir=log_dir, histogram_freq=1)
+    print('\n')
+    process_training(model, train_data, connector)
 
-    # def scheduler(epoch, lr):
-    #     if (epoch == 1):
-    #         return 0.01
-    #     if epoch % 10 == 0:
-    #         return lr - 0.0005
-    #     else:
-    #         return lr
+    return jsonify(
+        get=True
+    )
 
-    # learn_scheduler_callback = tf.keras.callbacks.LearningRateScheduler(
-    #     scheduler)
 
-    model.compile(optimizer=tf.keras.optimizers.Adam(),
-                  loss='categorical_crossentropy',
-                  metrics=['accuracy'])
-
-    h = model.fit(x=gen,  epochs=EPOCH, steps_per_epoch=50000 // BATCH_SIZE,
-                  callbacks=[tensorboard_callback])
-
-    model.evaluate(test_imgs, test_labels)
-
-    str_weights, str_model_structure = model_to_str(model)
-
-    print(type(str_weights), type(str_model_structure))
-    new_model = str_to_model(str_weights, str_model_structure)
-
-    new_model.compile(optimizer=tf.keras.optimizers.Adam(),
-                  loss='categorical_crossentropy',
-                  metrics=['accuracy'])
-    
-    model.evaluate(test_imgs, test_labels)
-    # model.fit(train_imgs, train_labels, epochs=EPOCH, batch_size=BATCH_SIZE, shuffle=True,
-    #           validation_data=(test_imgs, test_labels),
-    #           callbacks=[tensorboard_callback])
-
-    # model.save('CIFAR10_model_with_data_augmentation_dual_GPU.h5')
-    # validation_data=(test_imgs, test_labels),
-
-train()
+client.run(host="0.0.0.0", port=PORT, debug=False)

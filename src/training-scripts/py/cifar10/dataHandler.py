@@ -5,8 +5,7 @@ from PIL import Image
 from tensorflow.keras.utils import to_categorical
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
-TRAIN_PATH = './dataset/train'
-TEST_PATH = './dataset/test'
+TRAIN_PATH = './dataset/'
 
 CLASS_NAMES = os.listdir(TRAIN_PATH)
 CLASS_NUM = len(CLASS_NAMES)
@@ -14,37 +13,6 @@ CLASS_NUM = len(CLASS_NAMES)
 IMG_WIDTH = 32
 IMG_HEIGHT = 32
 IMG_CHANNEL = 3
-
-
-def load_data(type='TRAIN'):
-    imgs = []
-    labels = []
-
-    if (type == 'TRAIN'):
-        data_path = TRAIN_PATH
-    elif (type == 'TEST'):
-        data_path = TEST_PATH
-
-    for classIdx in range(0, len(CLASS_NAMES)):
-        imgNames = os.listdir(data_path + '/' + CLASS_NAMES[classIdx])
-
-        for idx in range(0, len(imgNames)):
-            # get one image
-            img = Image.open(data_path + '/' +
-                             CLASS_NAMES[classIdx] + '/' + imgNames[idx]).resize((IMG_WIDTH, IMG_HEIGHT))
-
-            # convert into a vector
-            img_vector = np.array(img).reshape(
-                IMG_WIDTH*IMG_HEIGHT*IMG_CHANNEL)/255
-
-            imgs.append(img_vector)
-            labels.append(classIdx)
-
-    x = np.array(imgs).reshape(len(imgs), IMG_WIDTH, IMG_HEIGHT, IMG_CHANNEL)
-    y = to_categorical(labels, num_classes=CLASS_NUM)
-
-    # return (np.array(imgs).reshape(len(imgs), IMG_WIDTH, IMG_HEIGHT, IMG_CHANNEL), np.array(labels))
-    return shuffle_dataset(x, y)
 
 
 def load_split_train_data():
@@ -76,7 +44,7 @@ def load_split_train_data():
             # convert into a vector
             img_vector = np.array(img).reshape(
                 IMG_WIDTH*IMG_HEIGHT*IMG_CHANNEL)/255
-            
+
             # add to the current batch
             dataset[batchIdx][0].append(img_vector)
             dataset[batchIdx][1].append(classIdx)
@@ -128,3 +96,8 @@ def shuffle_dataset(x, y):
     y_new = y[ind_list, ]
 
     return (x_new, y_new)
+
+
+if __name__ == '__main__':
+    dataset = load_split_train_data()
+    print(len(dataset), dataset[0][0].shape)

@@ -5,8 +5,8 @@ import threading
 from scheduler import Scheduler
 from get_models import get_model
 
-CLIENT_NUM_LIMIT = 5
-TRAIN_ROUND = 5
+CLIENT_NUM_LIMIT = 2
+TRAIN_ROUND = 2
 dl = Scheduler(['cifar10'], CLIENT_NUM_LIMIT, TRAIN_ROUND)
 
 app = Flask(__name__)
