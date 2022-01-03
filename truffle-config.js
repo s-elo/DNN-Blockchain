@@ -17,9 +17,11 @@ module.exports = {
     development: {
       host: "127.0.0.1",
       port: 7545,
-      gasPrice: 0x01,
+      // gasPrice: 0x01,
       skipDryRun: true,
       network_id: "*", // Match any network id
+      enableTimeouts: false,
+      before_timeout: 600000,
     },
     develop: {
       host: "http://127.0.0.1",

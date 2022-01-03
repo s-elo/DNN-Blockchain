@@ -33,8 +33,7 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function",
-      "constant": true
+      "type": "function"
     },
     {
       "inputs": [],
@@ -47,8 +46,7 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function",
-      "constant": true
+      "type": "function"
     },
     {
       "inputs": [],
@@ -61,8 +59,7 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function",
-      "constant": true
+      "type": "function"
     },
     {
       "inputs": [
@@ -94,8 +91,7 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function",
-      "constant": true
+      "type": "function"
     },
     {
       "inputs": [
@@ -145,8 +141,7 @@
         }
       ],
       "stateMutability": "pure",
-      "type": "function",
-      "constant": true
+      "type": "function"
     },
     {
       "inputs": [
@@ -165,8 +160,7 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function",
-      "constant": true
+      "type": "function"
     },
     {
       "inputs": [
@@ -208,8 +202,7 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function",
-      "constant": true
+      "type": "function"
     }
   ],
   "metadata": "{\"compiler\":{\"version\":\"0.6.2+commit.bacdbe57\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"int80[]\",\"name\":\"_weights\",\"type\":\"int80[]\"},{\"internalType\":\"int80\",\"name\":\"_intercept\",\"type\":\"int80\"},{\"internalType\":\"uint32\",\"name\":\"_learningRate\",\"type\":\"uint32\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"inputs\":[{\"internalType\":\"uint24[60][]\",\"name\":\"dataBatch\",\"type\":\"uint24[60][]\"},{\"internalType\":\"uint64[]\",\"name\":\"_classifications\",\"type\":\"uint64[]\"}],\"name\":\"evaluateBatch\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"numCorrect\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"int80[][]\",\"name\":\"_weights\",\"type\":\"int80[][]\"}],\"name\":\"initializeSparseWeights\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint64\",\"name\":\"startIndex\",\"type\":\"uint64\"},{\"internalType\":\"int80[]\",\"name\":\"_weights\",\"type\":\"int80[]\"}],\"name\":\"initializeWeights\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"intercept\",\"outputs\":[{\"internalType\":\"int80\",\"name\":\"\",\"type\":\"int80\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"learningRate\",\"outputs\":[{\"internalType\":\"uint32\",\"name\":\"\",\"type\":\"uint32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"int64[]\",\"name\":\"\",\"type\":\"int64[]\"}],\"name\":\"norm\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"pure\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"int64[]\",\"name\":\"data\",\"type\":\"int64[]\"}],\"name\":\"predict\",\"outputs\":[{\"internalType\":\"uint64\",\"name\":\"\",\"type\":\"uint64\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"transferOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"int64[]\",\"name\":\"data\",\"type\":\"int64[]\"},{\"internalType\":\"uint64\",\"name\":\"classification\",\"type\":\"uint64\"}],\"name\":\"update\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint64\",\"name\":\"\",\"type\":\"uint64\"}],\"name\":\"weights\",\"outputs\":[{\"internalType\":\"int80\",\"name\":\"\",\"type\":\"int80\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"methods\":{\"constructor\":{\"params\":{\"_intercept\":\"The bias to add to the multiplication of the weights and the data. Multiplied by `toFloat`.\",\"_learningRate\":\"(Optional, defaults to 1). The amount of impact that new training data has to the weights. Multiplied by `toFloat`.\",\"_weights\":\"The weights for the model. Each multiplied by `toFloat`.\"}},\"initializeSparseWeights(int80[][])\":{\"params\":{\"_weights\":\"A sparse representation of the weights. Each innermost array is a tuple of the feature index and the weight for that feature.\"}},\"initializeWeights(uint64,int80[])\":{\"params\":{\"_weights\":\"The weights to set for the model.\",\"startIndex\":\"The index to start placing `_weights` into the model's weights.\"}}}},\"userdoc\":{\"methods\":{\"evaluateBatch(uint24[60][],uint64[])\":{\"notice\":\"Evaluate a batch.      * Force samples to have a size of 60 because about 78% of the IMDB test data has less than 60 tokens. If the sample has less than 60 unique tokens, then use a value > weights.length. \"},\"initializeSparseWeights(int80[][])\":{\"notice\":\"Initialize sparse weights for the model. Made to be called just after the contract is created and never again.\"},\"initializeWeights(uint64,int80[])\":{\"notice\":\"Initialize weights for the model. Made to be called just after the contract is created and never again.\"}},\"notice\":\"A Perceptron where the data given for updating and predicting is sparse. `update` and `predict` methods take `data` that holds the indices of the features that are present.\"}},\"settings\":{\"compilationTarget\":{\"project:/contracts/ImdbPerceptron.sol\":\"ImdbPerceptron\"},\"evmVersion\":\"istanbul\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":false,\"runs\":200},\"remappings\":[]},\"sources\":{\"project:/contracts/ImdbPerceptron.sol\":{\"keccak256\":\"0xb9f1bbb0cffc0c0ed02a9e87a41c33bb6979e2b6214d3034cd13ee9dae076b3a\",\"urls\":[\"bzz-raw://6f917d560df0cb9c0e2ca2db134572cded2be07a980c2d2d356c024e958cb512\",\"dweb:/ipfs/QmeVxCkDg3nq1ffjEJ5DyjbQrE5BEah2kjsJQxYAcCGmyf\"]},\"project:/contracts/lib/SignedSafeMath.sol\":{\"keccak256\":\"0xdd494f3012f1c8c1d65810edf7c1e14513916dfcdeb67095757085fb16b811a3\",\"urls\":[\"bzz-raw://6df9d90963fb631684cc9f9c41b93dabd6b0f5baf91f687ebd134d071190e7c5\",\"dweb:/ipfs/QmWuxTTg92tkYkSn7waP3RBeACDmK1aSvXrupP4npY7ECN\"]},\"project:/contracts/ownership/Ownable.sol\":{\"keccak256\":\"0xfb7051a9d74ec56e356e55eca048da5b67e88f5a90d522896a78a62469aa396a\",\"urls\":[\"bzz-raw://dd0743def9802ba52a7ca91db30c7609be595e9aefb2ddf5a125cf36a136018a\",\"dweb:/ipfs/QmeoBfbiEKXioDDjrXCp1BWGhjPKPmYkyaArwqgqcC3sik\"]}},\"version\":1}",
@@ -254,7 +247,7 @@
         "id": 3,
         "nodeType": "ImportDirective",
         "scope": 424,
-        "sourceUnit": 737,
+        "sourceUnit": 840,
         "src": "60:34:0",
         "symbolAliases": [],
         "unitAlias": ""
@@ -265,7 +258,7 @@
         "id": 5,
         "nodeType": "ImportDirective",
         "scope": 424,
-        "sourceUnit": 785,
+        "sourceUnit": 888,
         "src": "98:48:0",
         "symbolAliases": [
           {
@@ -297,10 +290,10 @@
               "id": 6,
               "name": "Ownable",
               "nodeType": "UserDefinedTypeName",
-              "referencedDeclaration": 784,
+              "referencedDeclaration": 887,
               "src": "368:7:0",
               "typeDescriptions": {
-                "typeIdentifier": "t_contract$_Ownable_$784",
+                "typeIdentifier": "t_contract$_Ownable_$887",
                 "typeString": "contract Ownable"
               }
             },
@@ -310,7 +303,7 @@
           }
         ],
         "contractDependencies": [
-          784
+          887
         ],
         "contractKind": "contract",
         "documentation": "A Perceptron where the data given for updating and predicting is sparse.\n`update` and `predict` methods take `data` that holds the indices of the features that are present.",
@@ -318,7 +311,7 @@
         "id": 423,
         "linearizedBaseContracts": [
           423,
-          784
+          887
         ],
         "name": "ImdbPerceptron",
         "nodeType": "ContractDefinition",
@@ -330,10 +323,10 @@
               "id": 8,
               "name": "SignedSafeMath",
               "nodeType": "UserDefinedTypeName",
-              "referencedDeclaration": 736,
+              "referencedDeclaration": 839,
               "src": "388:14:0",
               "typeDescriptions": {
-                "typeIdentifier": "t_contract$_SignedSafeMath_$736",
+                "typeIdentifier": "t_contract$_SignedSafeMath_$839",
                 "typeString": "library SignedSafeMath"
               }
             },
@@ -1457,7 +1450,7 @@
                   "name": "onlyOwner",
                   "nodeType": "Identifier",
                   "overloadedDeclarations": [],
-                  "referencedDeclaration": 761,
+                  "referencedDeclaration": 864,
                   "src": "1991:9:0",
                   "typeDescriptions": {
                     "typeIdentifier": "t_modifier$__$",
@@ -2182,7 +2175,7 @@
                   "name": "onlyOwner",
                   "nodeType": "Identifier",
                   "overloadedDeclarations": [],
-                  "referencedDeclaration": 761,
+                  "referencedDeclaration": 864,
                   "src": "2506:9:0",
                   "typeDescriptions": {
                     "typeIdentifier": "t_modifier$__$",
@@ -2801,7 +2794,7 @@
                               "lValueRequested": false,
                               "memberName": "add",
                               "nodeType": "MemberAccess",
-                              "referencedDeclaration": 735,
+                              "referencedDeclaration": 838,
                               "src": "3204:5:0",
                               "typeDescriptions": {
                                 "typeIdentifier": "t_function_internal_pure$_t_int256_$_t_int256_$returns$_t_int256_$bound_to$_t_int256_$",
@@ -4122,7 +4115,7 @@
                   "name": "onlyOwner",
                   "nodeType": "Identifier",
                   "overloadedDeclarations": [],
-                  "referencedDeclaration": 761,
+                  "referencedDeclaration": 864,
                   "src": "3427:9:0",
                   "typeDescriptions": {
                     "typeIdentifier": "t_modifier$__$",
@@ -5598,7 +5591,7 @@
       },
       {
         "attributes": {
-          "SourceUnit": 737,
+          "SourceUnit": 840,
           "absolutePath": "project:/contracts/lib/SignedSafeMath.sol",
           "file": "./lib/SignedSafeMath.sol",
           "scope": 424,
@@ -5613,7 +5606,7 @@
       },
       {
         "attributes": {
-          "SourceUnit": 785,
+          "SourceUnit": 888,
           "absolutePath": "project:/contracts/ownership/Ownable.sol",
           "file": "./ownership/Ownable.sol",
           "scope": 424,
@@ -5646,14 +5639,14 @@
         "attributes": {
           "abstract": false,
           "contractDependencies": [
-            784
+            887
           ],
           "contractKind": "contract",
           "documentation": "A Perceptron where the data given for updating and predicting is sparse.\n`update` and `predict` methods take `data` that holds the indices of the features that are present.",
           "fullyImplemented": true,
           "linearizedBaseContracts": [
             423,
-            784
+            887
           ],
           "name": "ImdbPerceptron",
           "scope": 424
@@ -5668,7 +5661,7 @@
                 "attributes": {
                   "contractScope": null,
                   "name": "Ownable",
-                  "referencedDeclaration": 784,
+                  "referencedDeclaration": 887,
                   "type": "contract Ownable"
                 },
                 "id": 6,
@@ -5686,7 +5679,7 @@
                 "attributes": {
                   "contractScope": null,
                   "name": "SignedSafeMath",
-                  "referencedDeclaration": 736,
+                  "referencedDeclaration": 839,
                   "type": "library SignedSafeMath"
                 },
                 "id": 8,
@@ -6653,7 +6646,7 @@
                       "overloadedDeclarations": [
                         null
                       ],
-                      "referencedDeclaration": 761,
+                      "referencedDeclaration": 864,
                       "type": "modifier ()",
                       "value": "onlyOwner"
                     },
@@ -7087,7 +7080,7 @@
                       "overloadedDeclarations": [
                         null
                       ],
-                      "referencedDeclaration": 761,
+                      "referencedDeclaration": 864,
                       "type": "modifier ()",
                       "value": "onlyOwner"
                     },
@@ -8441,7 +8434,7 @@
                                           "isPure": false,
                                           "lValueRequested": false,
                                           "member_name": "add",
-                                          "referencedDeclaration": 735,
+                                          "referencedDeclaration": 838,
                                           "type": "function (int256,int256) pure returns (int256)"
                                         },
                                         "children": [
@@ -8856,7 +8849,7 @@
                       "overloadedDeclarations": [
                         null
                       ],
-                      "referencedDeclaration": 761,
+                      "referencedDeclaration": 864,
                       "type": "modifier ()",
                       "value": "onlyOwner"
                     },
@@ -11307,8 +11300,7 @@
     }
   },
   "schemaVersion": "3.4.3",
-  "updatedAt": "2021-12-31T12:15:24.287Z",
-  "networkType": "ethereum",
+  "updatedAt": "2022-01-03T05:55:19.264Z",
   "devdoc": {
     "methods": {
       "constructor": {
