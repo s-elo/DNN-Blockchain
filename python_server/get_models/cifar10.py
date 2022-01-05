@@ -1,6 +1,7 @@
-import tensorflow as tf
-from tensorflow.keras import layers, models
 import os
+from tensorflow.keras import layers, models
+import tensorflow as tf
+from utils import model_to_str
 
 os.environ['CUDA_VISIBLE_DEVICES'] = '0,1'
 
@@ -76,8 +77,15 @@ def getModel(input_shape, kernel_size, class_num, reg=True, normal=True):
 
 
 if __name__ == '__main__':
-    print('web3 test here')
     from web3 import Web3
+    print('web3 test here')
+
+    model = getModel(input_shape=(32, 32, 3), kernel_size=3,
+                     class_num=10, reg=True, normal=True)
+
+    str_params, str_archi = model_to_str(model)
+
+    print(len(str_params), len(str_archi))
 
     w3 = Web3(Web3.HTTPProvider(
         'https://ropsten.infura.io/v3/ab53629910c440089fda82f82af645f7'))

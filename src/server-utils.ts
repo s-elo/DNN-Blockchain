@@ -50,12 +50,24 @@ export function compressScript(scriptName: string, type: string) {
     const copyDirPath = path.resolve(scriptDirPath, ".", "tempt");
     if (!fs.existsSync(copyDirPath)) fs.mkdirSync(copyDirPath);
 
-    fileNames.forEach((name) => {
+    const copyPromises = fileNames.map((name) => {
       const originalFilePath = path.resolve(scriptDirPath, name);
       const copyFilePath = path.resolve(copyDirPath, name);
 
-      fs.copyFileSync(originalFilePath, copyFilePath);
+      // insert the account address
+      if (name === `main.${type}`) {
+        return fs.readFile(originalFilePath, "utf-8").then((file) => {
+          return fs.writeFile(
+            copyFilePath,
+            insertAddress(file, 'ADDRESS = "0x55161651815"')
+          );
+        });
+      }
+
+      return fs.copyFile(originalFilePath, copyFilePath);
     });
+
+    await Promise.all(copyPromises);
 
     const archive = archiver("zip");
 
@@ -103,4 +115,14 @@ export function getFileNames(dirPath: string) {
 
     res(fileNames);
   });
+}
+
+export function insertAddress(file: string, content: string) {
+  const lines = file.split("\n");
+
+  const insertLine = lines.findIndex((line) => !line.includes("import"));
+
+  lines.splice(insertLine + 1, 0, content);
+
+  return lines.join("\n");
 }
