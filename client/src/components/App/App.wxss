@@ -4,7 +4,7 @@
   font-size: 16px;
   box-sizing: border-box;
 }
-.container {
+.app-body .app-content {
   width: 100vw;
   min-height: 100vh;
   overflow-y: auto;
@@ -15,19 +15,7 @@
   justify-content: flex-start;
   align-items: center;
 }
-.container header {
-  width: 60rem;
-  height: 10rem;
-  background-color: #3498db;
-  border-radius: 5px;
-  text-align: flex-start;
-  padding: 20px;
-  font-size: 2rem;
+.app-body .app-content .demo-name {
   font-weight: bold;
-  color: #fff;
-  line-height: 6rem;
-}
-.container .content-area {
-  width: 60rem;
-  height: fit-content;
+  font-size: 18px;
 }

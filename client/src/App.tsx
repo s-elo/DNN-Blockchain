@@ -1,61 +1,21 @@
 import React from "react";
-import Menu from "@/components/Menu";
-import SimpleStorage from "@/contractComponents/SimpleStorage/SimpleStorage";
-import ImdbPerceptron from "@/contractComponents/ImdbPerceptron/ImdbPerceptron";
-import Test from "@/components/test/test";
-import "./App.less";
+import { Switch, Route, Redirect } from "react-router-dom";
+import ModelList from "./components/ModelList/ModelList";
+import ModelDetail from "./components/ModelDetail/ModelDetail";
 
-const linkStyle = {
-  textDecoration: "none",
-  color: "black",
-  width: "100%",
-  height: "100%",
-  display: "inline-block",
-  padding: "10px",
-};
+import './App.less';
 
-const demos = [
-  {
-    path: "/simpleStorage",
-    name: "SimpleStorage",
-    component: SimpleStorage,
-  },
-  {
-    path: "/imdbPerceptron",
-    name: "ImdbPerceptron",
-    component: ImdbPerceptron,
-  },
-  {
-    path: "/test",
-    name: "Test",
-    component: Test,
-  },
-];
-
-export default class App extends React.Component {
-  state = {
-    currentDemoName: "",
-  };
-
-  changeDemo = (itemName: string) => {
-    this.setState({
-      currentDemoName: itemName,
-    });
-  };
-
-  render() {
-    return (
-      <div className="app-body">
-        <div className="app-content">
-          <div className="demo-name">{this.state.currentDemoName}</div>
-          <Menu
-            items={demos}
-            linkStyle={linkStyle}
-            menuPath="/"
-            itemChanged={this.changeDemo}
-          ></Menu>
-        </div>
-      </div>
-    );
-  }
+export default function App() {
+  return (
+    <div className="container">
+      <header>Model List</header>
+      <main className="content-area">
+        <Switch>
+          <Route exact path="/" component={ModelList} />
+          <Route exact path="/:modelId" component={ModelDetail} />
+          <Redirect to="/" />
+        </Switch>
+      </main>
+    </div>
+  );
 }

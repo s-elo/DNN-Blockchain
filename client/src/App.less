@@ -4,20 +4,30 @@
   font-size: 16px;
   box-sizing: border-box;
 }
-.app-body {
-  .app-content {
-    width: 100vw;
-    min-height: 100vh;
-    overflow-y: auto;
-    padding: 40px 0;
-    background-color: rgb(161, 156, 156);
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: center;
-    .demo-name {
-      font-weight: bold;
-      font-size: 18px;
-    }
+.container {
+  width: 100vw;
+  min-height: 100vh;
+  overflow-y: auto;
+  padding: 40px 0;
+  background-color: rgb(161, 156, 156);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  header {
+    width: 60rem;
+    height: 10rem;
+    background-color: #3498db;
+    border-radius: 5px;
+    text-align: flex-start;
+    padding: 20px;
+    font-size: 2rem;
+    font-weight: bold;
+    color: #fff;
+    line-height: 6rem;
+  }
+  .content-area {
+    width: 60rem;
+    height: fit-content;
   }
 }
