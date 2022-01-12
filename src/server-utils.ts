@@ -2,11 +2,11 @@ import path from "path";
 import fs from "fs-extra";
 import archiver from "archiver";
 
-export function getScriptNames() {
+export function getScriptNames(types?: string[]) {
   // get the types of the scripts
-  const scriptTypes = fs.readdirSync(
-    path.resolve(__dirname, ".", "training-scripts")
-  );
+  const scriptTypes = types
+    ? types
+    : fs.readdirSync(path.resolve(__dirname, ".", "training-scripts"));
 
   const scriptNames = scriptTypes.reduce((names, curType) => {
     // get the current type path
@@ -27,7 +27,11 @@ export function getScriptNames() {
   return scriptNames;
 }
 
-export function compressScript(scriptName: string, type: string) {
+export function compressScript(
+  address: string,
+  scriptName: string,
+  type: string
+) {
   return new Promise<string>(async (res, rej) => {
     const scriptDirPath = path.resolve(
       __dirname,
@@ -59,7 +63,7 @@ export function compressScript(scriptName: string, type: string) {
         return fs.readFile(originalFilePath, "utf-8").then((file) => {
           return fs.writeFile(
             copyFilePath,
-            insertAddress(file, 'ADDRESS = "0x55161651815"')
+            insertAddress(file, `ADDRESS = "${address}"`)
           );
         });
       }
