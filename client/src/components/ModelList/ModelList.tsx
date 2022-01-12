@@ -1,6 +1,6 @@
 import React from "react";
 import ModelItem, { Model } from "../ModelItem/ModelItem";
-import './ModelList.less';
+import "./ModelList.less";
 
 const models: Model[] = [
   {
@@ -21,6 +21,8 @@ const models: Model[] = [
 ];
 
 export default function ModelList() {
-  const renderedModels = models.map((model) => <ModelItem model={model} />);
+  const renderedModels = models.map((model) => (
+    <ModelItem model={model} key={model.id} />
+  ));
   return <div className="model-list-container">{renderedModels}</div>;
 }

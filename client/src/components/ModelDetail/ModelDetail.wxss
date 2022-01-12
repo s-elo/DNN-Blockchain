@@ -1,0 +1,8 @@
+.download-btn {
+  background-color: #3498db;
+  color: #fff;
+  font-weight: bold;
+}
+.download-btn:hover {
+  background-color: #49aaeb;
+}

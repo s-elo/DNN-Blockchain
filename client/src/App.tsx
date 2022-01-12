@@ -12,7 +12,7 @@ export default function App() {
       <main className="content-area">
         <Switch>
           <Route exact path="/" component={ModelList} />
-          <Route exact path="/:modelId" component={ModelDetail} />
+          <Route exact path="/:modelName" component={ModelDetail} />
           <Redirect to="/" />
         </Switch>
       </main>

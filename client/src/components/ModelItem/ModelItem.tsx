@@ -10,7 +10,7 @@ export type Model = {
 
 export default function ModelItem({ model }: { model: Model }) {
   return (
-    <Link className="model-item" to={`/${model.id}`}>
+    <Link className="model-item" to={`/${model.name}`}>
       <title>{model.name}</title>
       <section>{model.desc}</section>
     </Link>
