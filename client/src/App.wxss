@@ -22,10 +22,14 @@
   border-radius: 5px;
   text-align: flex-start;
   padding: 20px;
+}
+.container header .to-list {
   font-size: 2.5rem;
   font-weight: bold;
   color: #fff;
-  line-height: 6rem;
+  line-height: 7rem;
+  cursor: pointer;
+  text-decoration: none;
 }
 .container .content-area {
   width: 60rem;

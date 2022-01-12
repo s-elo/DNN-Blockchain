@@ -1,5 +1,6 @@
 import React, { ChangeEvent, useState } from "react";
 import { RouteComponentProps } from "react-router-dom";
+import { useGetModelsQuery } from "../modelApi";
 
 // import { Model } from "../ModelItem/ModelItem";
 import "./ModelDetail.less";
@@ -13,6 +14,7 @@ export default function ModelDetail(
   props: RouteComponentProps<{ modelName: string }>
 ) {
   const { modelName } = props.match.params;
+  const {data: models} = useGetModelsQuery();
 
   const [address, setAddress] = useState("");
   const handleAddressChange = (e: ChangeEvent<HTMLInputElement>) =>
@@ -24,7 +26,7 @@ export default function ModelDetail(
 
   return (
     <>
-      <title>{modelName}</title>
+      <title className='detail-title'>{modelName}</title>
       <article>{`this is the desc`}</article>
       <input
         type="text"

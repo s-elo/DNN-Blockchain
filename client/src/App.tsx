@@ -1,14 +1,18 @@
 import React from "react";
-import { Switch, Route, Redirect } from "react-router-dom";
-import ModelList from "./components/ModelList/ModelList";
-import ModelDetail from "./components/ModelDetail/ModelDetail";
+import { Link, Switch, Route, Redirect } from "react-router-dom";
+import ModelList from "./featrures/model/ModelList/ModelList";
+import ModelDetail from "./featrures/model/ModelDetail/ModelDetail";
 
-import './App.less';
+import "./App.less";
 
 export default function App() {
   return (
     <div className="container">
-      <header>Model List</header>
+      <header>
+        <Link to="/" className="to-list">
+          Model List
+        </Link>
+      </header>
       <main className="content-area">
         <Switch>
           <Route exact path="/" component={ModelList} />
