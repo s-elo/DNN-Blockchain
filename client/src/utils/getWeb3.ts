@@ -1,13 +1,13 @@
 import Web3 from "web3";
 
 const getWeb3 = () =>
-  new Promise(async (resolve, reject) => {
+  new Promise<Web3>(async (resolve, reject) => {
     // Modern dapp browsers...
-    if (window.ethereum) {
-      const web3 = new Web3(window.ethereum);
+    if ((window as any).ethereum) {
+      const web3 = new Web3((window as any).ethereum);
       try {
         // Request account access if needed
-        await window.ethereum.enable();
+        await (window as any).ethereum.enable();
         // Accounts now exposed
         resolve(web3);
       } catch (error) {
@@ -15,9 +15,9 @@ const getWeb3 = () =>
       }
     }
     // Legacy dapp browsers...
-    else if (window.web3) {
+    else if ((window as any).web3) {
       // Use Mist/MetaMask's provider.
-      const web3 = window.web3;
+      const web3 = (window as any).web3;
       console.log("Injected web3 detected.");
       resolve(web3);
     }
