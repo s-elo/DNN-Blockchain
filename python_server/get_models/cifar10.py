@@ -2,6 +2,7 @@ import os
 from tensorflow.keras import layers, models
 import tensorflow as tf
 from utils import model_to_str
+import requests as rq
 
 os.environ['CUDA_VISIBLE_DEVICES'] = '0,1'
 
@@ -78,19 +79,86 @@ def getModel(input_shape, kernel_size, class_num, reg=True, normal=True):
 
 if __name__ == '__main__':
     from web3 import Web3
+    import json
+    from privateKey import key
+
     print('web3 test here')
+
+    def save(path='./data.json', data=[]):
+        with open(path, "w") as f:
+            json.dump(data, f)
+            print("加载入文件完成...")
+
+    def read(path='./data.json'):
+        with open(path, 'r') as load_f:
+            data = json.load(load_f)
+
+            return data
 
     model = getModel(input_shape=(32, 32, 3), kernel_size=3,
                      class_num=10, reg=True, normal=True)
+
+    model.compile(optimizer=tf.keras.optimizers.Adam(),
+                  loss='categorical_crossentropy',
+                  metrics=['accuracy'])
+
+    # model.save('./model.h5')
 
     str_params, str_archi = model_to_str(model)
 
     print(len(str_params), len(str_archi))
 
+    # save(data={'params': str_params, 'archi': str_archi})
+
+    apiKey = 'ab53629910c440089fda82f82af645f7'
+
     w3 = Web3(Web3.HTTPProvider(
-        'https://ropsten.infura.io/v3/ab53629910c440089fda82f82af645f7'))
+        f'https://ropsten.infura.io/v3/{apiKey}'))
 
     print(w3.isConnected())
+
     balance = w3.eth.get_balance('0x8eacBB337647ea34eC26804C3339e80EB488587c')
 
     print(balance)
+
+    contractAddress = '0x91120b64E9E1aD109EeD15FCA792af3d9F4a43B9'
+    abi = [{"inputs": [], "name":"get", "outputs":[{"internalType": "string", "name": "", "type": "string"}], "stateMutability": "view", "type": "function"}, {
+        "inputs": [{"internalType": "string", "name": "x", "type": "string"}], "name": "set", "outputs": [], "stateMutability":"nonpayable", "type":"function"}]
+
+    w3.eth.default_account = '0x8eacBB337647ea34eC26804C3339e80EB488587c'
+    w3.eth.account.from_key(key)
+
+    contract = w3.eth.contract(contractAddress, abi=abi)
+
+    def callMethod(contract, method, *args):
+        nonce = w3.eth.get_transaction_count(
+            '0x8eacBB337647ea34eC26804C3339e80EB488587c')
+
+        # {
+        #     'chainId': 1,
+        #     'gas': 70000,
+        #     'maxFeePerGas': w3.toWei('2', 'gwei'),
+        #     'maxPriorityFeePerGas': w3.toWei('1', 'gwei'),
+        #     'nonce': nonce,
+        # }
+        builded_txn = contract.functions[method](
+            *args).buildTransaction({'nonce': nonce})
+
+        signed_txn = w3.eth.account.sign_transaction(
+            builded_txn, private_key=key)
+
+        return w3.eth.send_raw_transaction(signed_txn.rawTransaction)
+
+    tx_hash = callMethod(contract, 'set', 'alterstring')
+    print(tx_hash)
+
+    tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
+    print(tx_receipt)
+
+    string = contract.functions.get().call()
+    print(string)
+
+    # resp = rq.get(
+    #     f'https://api-ropsten.etherscan.io/api?module=contract&action=getabi&address={contractAddress}')
+
+    # print(resp)
