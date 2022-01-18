@@ -1,9 +1,9 @@
 import os
 from tensorflow.keras import layers, models
 import tensorflow as tf
-from get_models.utils import model_to_str
 import requests as rq
-from store import model_storage
+if __name__ != '__main__':
+    from store import model_storage
 
 os.environ['CUDA_VISIBLE_DEVICES'] = '0,1'
 
@@ -100,6 +100,7 @@ if __name__ == '__main__':
     import json
     from privateKey import key
     import ipfshttpclient as ipfs
+    from utils import model_to_str
 
     print('web3 test here')
 
@@ -137,9 +138,11 @@ if __name__ == '__main__':
 
     print(balance)
 
-    contractAddress = '0x91120b64E9E1aD109EeD15FCA792af3d9F4a43B9'
-    abi = [{"inputs": [], "name":"get", "outputs":[{"internalType": "string", "name": "", "type": "string"}], "stateMutability": "view", "type": "function"}, {
-        "inputs": [{"internalType": "string", "name": "x", "type": "string"}], "name": "set", "outputs": [], "stateMutability":"nonpayable", "type":"function"}]
+    contract_info = read(path='./contract.json')
+
+    contractAddress = contract_info['address']
+
+    abi = contract_info['abi']
 
     resp = rq.get(
         f'https://api-ropsten.etherscan.io/api?module=contract&action=getabi&address={contractAddress}')
