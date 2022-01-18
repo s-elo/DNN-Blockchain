@@ -7,6 +7,7 @@ from scheduler.utils import Utils
 import numpy as np
 import tensorflow as tf
 from get_models import get_model
+from store import model_storage
 
 
 class Scheduler:
@@ -23,6 +24,8 @@ class Scheduler:
 
         self.modelNames = modelNames
 
+        self.get_model = get_model
+
         for m in self.modelNames:
             # each model has multiple clients
             self.clients[m] = []
@@ -30,7 +33,7 @@ class Scheduler:
             model_info = {
                 'testset': get_testset(m),
                 # get compiled model
-                'model': get_model(m)
+                'model': get_model(m, isInital=True)
             }
 
             self.models[m] = model_info
@@ -73,7 +76,7 @@ class Scheduler:
         pass
 
     # first response than boardcast
-    def async_boardcast(self, modelName, model={}, delay=5):
+    def async_boardcast(self, modelName, model={}, delay=3):
         boardcast_thread = threading.Thread(
             target=self.boardcast_params, args=(modelName, model, delay))
         boardcast_thread.start()
@@ -171,6 +174,11 @@ class Scheduler:
 
     def clear_clients(self, modelName):
         self.clients[modelName] = []
+
+    def store_model(self, model):
+        model_hash = model_storage.store_model(model)
+
+        print(model_hash)
 
     # evaluate the accuracy of a certain model
     def evaluate(self, modelName):

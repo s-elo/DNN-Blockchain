@@ -1,8 +1,9 @@
 import os
 from tensorflow.keras import layers, models
 import tensorflow as tf
-from utils import model_to_str
+from get_models.utils import model_to_str
 import requests as rq
+from store import model_storage
 
 os.environ['CUDA_VISIBLE_DEVICES'] = '0,1'
 
@@ -19,7 +20,7 @@ if gpus:
         print(e)
 
 
-def getModel(input_shape, kernel_size, class_num, reg=True, normal=True):
+def get_model(input_shape, kernel_size, class_num, reg=True, normal=True):
     model = models.Sequential()
 
     # stage 1
@@ -77,10 +78,28 @@ def getModel(input_shape, kernel_size, class_num, reg=True, normal=True):
     return model
 
 
+def get_cifar10_model(isInital):
+    if isInital:
+        model = get_model(input_shape=(32, 32, 3), kernel_size=3,
+                          class_num=10, reg=True, normal=True)
+
+        model.compile(optimizer=tf.keras.optimizers.Adam(),
+                      loss='categorical_crossentropy',
+                      metrics=['accuracy'])
+
+    # get from ipfs
+    else:
+        model = model_storage.get_model(
+            'QmTdKW1bkQB5jjhd2cW8CghFzHzCZT8Mv7cGZdyqM5s4mm')
+
+    return model
+
+
 if __name__ == '__main__':
     from web3 import Web3
     import json
     from privateKey import key
+    import ipfshttpclient as ipfs
 
     print('web3 test here')
 
@@ -95,12 +114,7 @@ if __name__ == '__main__':
 
             return data
 
-    model = getModel(input_shape=(32, 32, 3), kernel_size=3,
-                     class_num=10, reg=True, normal=True)
-
-    model.compile(optimizer=tf.keras.optimizers.Adam(),
-                  loss='categorical_crossentropy',
-                  metrics=['accuracy'])
+    model = get_cifar10_model(isInital=True)
 
     # model.save('./model.h5')
 
@@ -108,7 +122,9 @@ if __name__ == '__main__':
 
     print(len(str_params), len(str_archi))
 
-    # save(data={'params': str_params, 'archi': str_archi})
+    data = {'params': str_params, 'archi': str_archi}
+
+    # save(data=data)
 
     apiKey = 'ab53629910c440089fda82f82af645f7'
 
@@ -124,6 +140,11 @@ if __name__ == '__main__':
     contractAddress = '0x91120b64E9E1aD109EeD15FCA792af3d9F4a43B9'
     abi = [{"inputs": [], "name":"get", "outputs":[{"internalType": "string", "name": "", "type": "string"}], "stateMutability": "view", "type": "function"}, {
         "inputs": [{"internalType": "string", "name": "x", "type": "string"}], "name": "set", "outputs": [], "stateMutability":"nonpayable", "type":"function"}]
+
+    resp = rq.get(
+        f'https://api-ropsten.etherscan.io/api?module=contract&action=getabi&address={contractAddress}')
+
+    print(resp)
 
     w3.eth.default_account = '0x8eacBB337647ea34eC26804C3339e80EB488587c'
     w3.eth.account.from_key(key)
@@ -149,16 +170,26 @@ if __name__ == '__main__':
 
         return w3.eth.send_raw_transaction(signed_txn.rawTransaction)
 
-    tx_hash = callMethod(contract, 'set', 'alterstring')
-    print(tx_hash)
+    # tx_hash = callMethod(contract, 'set', 'alterstring')
+    # print(tx_hash)
 
-    tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
-    print(tx_receipt)
+    # tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
+    # print(tx_receipt)
 
     string = contract.functions.get().call()
     print(string)
 
-    # resp = rq.get(
-    #     f'https://api-ropsten.etherscan.io/api?module=contract&action=getabi&address={contractAddress}')
+    # client = ipfs.connect()
+    # pin_list = client.pin.ls(type='all')
+    # print(pin_list['Keys']['QmTdKW1bkQB5jjhd2cW8CghFzHzCZT8Mv7cGZdyqM5s4mm'])
+    # print(len(client.get_json(
+    #     'QmTdKW1bkQB5jjhd2cW8CghFzHzCZT8Mv7cGZdyqM5s4mm')['params']))
+    # model_hash = client.add_json(data)
 
-    # print(resp)
+    # model_hash = 'QmTdKW1bkQB5jjhd2cW8CghFzHzCZT8Mv7cGZdyqM5s4mm'
+    # print(model_hash)
+
+    # print(client.cat('QmfXT9rNL5rnvHv3yy1di5nrAdNPXfv7re7t4xGE6yXUod'))
+    # resp = rq.get(f'http://localhost:8080/ipfs/{model_hash}')
+
+    # print(len(resp.json()['params']))

@@ -12,7 +12,7 @@ dl = Scheduler(['cifar10'], CLIENT_NUM_LIMIT, TRAIN_ROUND)
 app = Flask(__name__)
 
 # every 10 seconds
-TIME_SLOT = 10
+# TIME_SLOT = 10
 
 
 @app.route('/<modelName>', methods=['GET'])
@@ -60,8 +60,10 @@ def joinTraining(modelName):
             if isDone:
                 # tell all the cilents that is done
                 # dl.async_boardcast(modelName, {'isDone': True, 'model': None})
-                # since this must be the last done clients
+                # since this must be the last done clients when canAvg
                 dl.clear_clients(modelName)
+                # store the model in ipfs
+                dl.store_model(avgModel)
 
                 return jsonify(isFirstTime=False, isDone=True, needWait=False, round=cur_round)
             else:

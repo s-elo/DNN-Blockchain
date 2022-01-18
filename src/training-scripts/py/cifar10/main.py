@@ -18,6 +18,7 @@ MODEL_NAME = 'cifar10'
 connector = Connector(SERVER_DOMAIN, SERVER_PORT, PORT, MODEL_NAME)
 
 # request to join the training and get the model
+print('getting the mdoel from ipfs...')
 model = connector.get_model()
 
 if model == None:
