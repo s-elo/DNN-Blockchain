@@ -24,7 +24,7 @@ module.exports = function (deployer, accounts) {
       learningRate,
       {
         gas: 7.9e6,
-        overwrite: false,
+        // overwrite: false,
       }
     )
     .then(async (classifier) => {
