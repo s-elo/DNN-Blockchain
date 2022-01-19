@@ -1,4 +1,21 @@
 import requests as rq
+from web3 import Web3
+import json
+
+apiKey = 'ab53629910c440089fda82f82af645f7'
+w3 = Web3(Web3.HTTPProvider(
+    f'https://ropsten.infura.io/v3/{apiKey}'))
+
+
+def read(path='./contract.json'):
+    with open(path, 'r') as load_f:
+        return json.load(load_f)
+
+
+contract_info = read(path='./contract.json')
+contractAddress = contract_info['address']
+abi = contract_info['abi']
+main_contract = w3.eth.contract(contractAddress, abi=abi)
 
 
 class Connector:
@@ -10,15 +27,16 @@ class Connector:
         self.modelName = modelName
 
         self.server_addr = f'{server_domain}:{server_port}/{modelName}'
-        self.ipfs_server_node = f'{server_domain}:{8080}/ipfs/QmTdKW1bkQB5jjhd2cW8CghFzHzCZT8Mv7cGZdyqM5s4mm'
+        self.ipfs_server_node = f'{server_domain}:{8080}/ipfs'
         self.round = 0
 
     def get_model(self):
         # get the model from server for simulation
         # it should actually get the model from blockchain (ipfs)
         # model = rq.get(self.server_addr).json()['model']
+        model_hash = main_contract.functions.get().call()
 
-        model = rq.get(self.ipfs_server_node).json()
+        model = rq.get(f'{self.ipfs_server_node}/{model_hash}').json()
 
         return model
 

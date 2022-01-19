@@ -32,7 +32,7 @@ class Scheduler:
             model_info = {
                 'testset': get_testset(m),
                 # get compiled model (only need the structure actually)
-                'model': store.get_model(m)
+                'model': store.get_initial_model(m)
             }
 
             self.models[m] = model_info

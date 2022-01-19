@@ -94,7 +94,7 @@ def get_cifar10_model():
 if __name__ == '__main__':
     from web3 import Web3
     import json
-    from privateKey import key
+    from privateKey import private_key
     import ipfshttpclient as ipfs
     from utils import model_to_str
 
@@ -111,7 +111,7 @@ if __name__ == '__main__':
 
             return data
 
-    model = get_cifar10_model(isInital=True)
+    model = get_cifar10_model()
 
     # model.save('./model.h5')
 
@@ -145,8 +145,8 @@ if __name__ == '__main__':
 
     print(resp)
 
-    w3.eth.default_account = '0x8eacBB337647ea34eC26804C3339e80EB488587c'
-    w3.eth.account.from_key(key)
+    # w3.eth.default_account = '0x8eacBB337647ea34eC26804C3339e80EB488587c'
+    # w3.eth.account.from_key(private_key)
 
     contract = w3.eth.contract(contractAddress, abi=abi)
 
@@ -165,11 +165,11 @@ if __name__ == '__main__':
             *args).buildTransaction({'nonce': nonce})
 
         signed_txn = w3.eth.account.sign_transaction(
-            builded_txn, private_key=key)
+            builded_txn, private_key=private_key)
 
         return w3.eth.send_raw_transaction(signed_txn.rawTransaction)
 
-    # tx_hash = callMethod(contract, 'set', 'alterstring')
+    # tx_hash = callMethod(contract, 'set', 'QmbMHyMYMigMJLPC3CxWsnVRrKd9fkvYoJ65tQVkZJj1H6')
     # print(tx_hash)
 
     # tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)

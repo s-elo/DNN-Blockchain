@@ -22,7 +22,7 @@ if gpus:
 
 
 BATCH_SIZE = 64
-EPOCH = 20
+EPOCH = 2
 
 
 def train(model, train_data):
