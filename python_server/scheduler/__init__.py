@@ -6,8 +6,7 @@ from testset import get_testset
 from scheduler.utils import Utils
 import numpy as np
 import tensorflow as tf
-from get_models import get_model
-from store import model_storage
+from store import model_storage as store
 
 
 class Scheduler:
@@ -24,7 +23,7 @@ class Scheduler:
 
         self.modelNames = modelNames
 
-        self.get_model = get_model
+        self.store = store
 
         for m in self.modelNames:
             # each model has multiple clients
@@ -32,8 +31,8 @@ class Scheduler:
 
             model_info = {
                 'testset': get_testset(m),
-                # get compiled model
-                'model': get_model(m, isInital=True)
+                # get compiled model (only need the structure actually)
+                'model': store.get_model(m)
             }
 
             self.models[m] = model_info
@@ -176,7 +175,7 @@ class Scheduler:
         self.clients[modelName] = []
 
     def store_model(self, model):
-        model_hash = model_storage.store_model(model)
+        model_hash = store.store_model(model)
 
         print(model_hash)
 

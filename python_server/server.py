@@ -1,9 +1,8 @@
 from flask import Flask, jsonify, request
-import requests as rq
-import time
-import threading
+# import requests as rq
+# import time
+# import threading
 from scheduler import Scheduler
-from get_models import get_model
 
 CLIENT_NUM_LIMIT = 2
 TRAIN_ROUND = 2

@@ -2,8 +2,6 @@ import os
 from tensorflow.keras import layers, models
 import tensorflow as tf
 import requests as rq
-if __name__ != '__main__':
-    from store import model_storage
 
 os.environ['CUDA_VISIBLE_DEVICES'] = '0,1'
 
@@ -78,21 +76,19 @@ def get_model(input_shape, kernel_size, class_num, reg=True, normal=True):
     return model
 
 
-def get_cifar10_model(isInital):
-    if isInital:
-        model = get_model(input_shape=(32, 32, 3), kernel_size=3,
-                          class_num=10, reg=True, normal=True)
+def get_cifar10_model():
+    model = get_model(input_shape=(32, 32, 3), kernel_size=3,
+                      class_num=10, reg=True, normal=True)
 
-        model.compile(optimizer=tf.keras.optimizers.Adam(),
-                      loss='categorical_crossentropy',
-                      metrics=['accuracy'])
-
-    # get from ipfs
-    else:
-        model = model_storage.get_model(
-            'QmTdKW1bkQB5jjhd2cW8CghFzHzCZT8Mv7cGZdyqM5s4mm')
+    model.compile(optimizer=tf.keras.optimizers.Adam(),
+                  loss='categorical_crossentropy',
+                  metrics=['accuracy'])
 
     return model
+    # get from ipfs
+    # else:
+    #     model = model_storage.get_model(
+    #         'QmTdKW1bkQB5jjhd2cW8CghFzHzCZT8Mv7cGZdyqM5s4mm')
 
 
 if __name__ == '__main__':
