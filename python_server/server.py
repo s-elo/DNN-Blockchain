@@ -13,6 +13,10 @@ app = Flask(__name__)
 # every 10 seconds
 # TIME_SLOT = 10
 
+nodes = {
+    'cifar10': []
+}
+
 
 @app.route('/<modelName>', methods=['GET'])
 # simulate getting the model from blockchain
@@ -21,6 +25,25 @@ def getModel(modelName):
     str_weights, str_model_structure = dl.utils.model_to_str(model)
 
     return jsonify(model={'params': str_weights, 'archi': str_model_structure})
+
+
+@app.route('/<modelName>/nodes', methods=['GET'])
+def getNodes(modelName):
+    return jsonify(nodes=nodes[modelName])
+
+
+@app.route('/<modelName>/nodes', methods=['POST'])
+def addNodes(modelName):
+    post_data = request.get_json()
+
+    client_addr = request.remote_addr
+    client_port = post_data['port']
+
+    client_url = f'http://{client_addr}:{client_port}/'
+
+    nodes[modelName].append(client_url)
+
+    return jsonify(nodes=nodes[modelName])
 
 
 @app.route('/<modelName>', methods=['POST'])
@@ -62,7 +85,7 @@ def joinTraining(modelName):
                 # since this must be the last done clients when canAvg
                 dl.clear_clients(modelName)
                 # store the model in ipfs
-                dl.store_model(avgModel)
+                # dl.store_model(avgModel)
 
                 return jsonify(isFirstTime=False, isDone=True, needWait=False, round=cur_round)
             else:
