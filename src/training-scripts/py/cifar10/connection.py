@@ -3,7 +3,10 @@ import requests as rq
 from web3 import Web3
 import json
 import os
+import threading
 from scheduler import Scheduler
+from train import train
+from dataHandler import load_split_train_data
 
 apiKey = 'ab53629910c440089fda82f82af645f7'
 w3 = Web3(Web3.HTTPProvider(
@@ -22,25 +25,17 @@ main_contract = w3.eth.contract(contractAddress, abi=abi)
 
 
 class Connector(Scheduler):
-    def __init__(self, server_domain, server_port, self_port, modelName, node_num=2, total_round=2) -> None:
-        super(Connector, self).__init__()
-
-        self.nodes = []
-        self.selected_node = None
-        self.self_node = None
+    def __init__(self, server_domain, server_port, self_port, modelName, data_set, node_num=2, total_round=2) -> None:
+        super(Connector, self).__init__(
+            self_port, modelName, node_num, total_round)
 
         self.server_domain = server_domain
         self.server_port = server_port
 
-        self.self_port = self_port
-        self.modelName = modelName
-
         self.server_addr = f'{server_domain}:{server_port}/{modelName}'
         self.ipfs_server_node = f'{server_domain}:{8080}/ipfs'
 
-        self.total_node = node_num
-        self.total_round = total_round
-        self.round = 0
+        self.data_set = data_set
 
     def check_model(self, from_ipfs=False):
         # request to join the training and get the model
@@ -50,6 +45,8 @@ class Connector(Scheduler):
         if model == None:
             print('seems the server/blockchain has a bit problem, try again next time')
             os._exit(0)
+
+        self.model = model
 
         return model
 
@@ -66,66 +63,110 @@ class Connector(Scheduler):
         return model
 
     def join_network(self):
+        print(
+            f'requesting to join the {self.modelName} current training network...')
+
         # it should fetch from the blockchain
         nodes = rq.post(f'{self.server_addr}/nodes', json={
-            'port': self.self_port}).json()['nodes']
+            'address': self.address}).json()['nodes']
+
+        # it means exceeding the maximum node number
+        if nodes == None:
+            print(
+                f'Reached the maximum node number of the current training, please join next time.')
+            os._exit(0)
 
         print(nodes)
         self.nodes = nodes
-        # the last one should be the address of this current node
-        self.self_node = nodes[len(nodes) - 1]
 
-        if len(nodes) < self.total_node:
-            # less than the required node number, need waiting
-            print(
-                f'wait for {self.total_node - len(nodes)} more nodes to join...')
-        else:
+        if len(nodes) == self.total_node:
             # select the last node as the schedule node for the network and boardcast
             # except notify itself
-            self.selected_node = self.self_node
-            rets = self.boardcast_params(node_addrs=self.filter_self(), params={
-                                         'node': self.node_selection(nodes)}, delay=1)
+            self.selected_node = self.address
+            self.async_boardcast(router='node-selected', params={
+                'node': self.node_selection(nodes)}, delay=2)
 
-            self.handle_boardcast_results(rets)
+            # directly begin to train asyncly
+            self.async_process_training()
+        else:
+            print(
+                f'wait for {self.total_node - len(nodes)} more nodes to join...')
 
         # os._exit(0)
 
-    def join_training(self, model_params: str, model_archi: str):
-        """
-        return 
-        - 0: waiting
-        - 1: done
-        - -1: request wrong
-        - 2: not done no waiting (get average model)
-        - -2: client number overflow, can not join
-        - 3: can join
-        """
-        print(f'requesting to join the {self.modelName} training...')
+    def join_average(self, model_params: str, model_archi: str):
+        if self.address == self.selected_node:
+            # no need to post
+            status = self.averge(
+                new_model={'params': model_params, 'archi': model_archi})
 
-        # request to join the training process
-        resp = rq.post(self.server_addr, json={
-                       'params': model_params, 'archi': model_archi, 'port': self.self_port})
-
-        # check the status
-        if (resp.status_code == 200):
-            json_data = resp.json()
-
-            if (json_data['isFirstTime'] == False):
-                self.round = json_data['round']
-
-                if (json_data['isDone']):
-                    return 1
-                else:
-                    if json_data['needWait']:
-                        return 0
-                    else:
-                        return 2
-            else:
-                print(json_data['msg'])
-                return (3 if json_data['canJoin'] else -2)
+            return status
         else:
-            return -1
+            resp = rq.post(f'{self.selected_node}/join-average', json={
+                'params': model_params, 'archi': model_archi, 'node': self.address})
 
-    def filter_self(self):
-        return list(map(
-            lambda node: f'{node}/node-selected', self.nodes))[0:self.total_node - 1]
+            return resp.json()['status']
+
+    def process_training(self):
+        # os.environ['CUDA_VISIBLE_DEVICES'] = '1'
+        if self.train_data == None:
+            self.load_data(self.data_set)
+
+        model = self.utils.str_to_model(
+            self.model['params'], self.model['archi'])
+
+        self.round = self.round + 1
+        
+        print(f'Training at round {self.round}')
+
+        trained_model = train(model, self.train_data)
+
+        print(f'training done for round {self.round}')
+
+        str_params, str_archi = self.utils.model_to_str(trained_model)
+
+        # request to join the averaging process
+        status = self.join_average(str_params, str_archi)
+
+        if status == 'WAITING':
+            # the selected node will boardcast the averaged model
+            # the selected node will wait for other nodes' new models
+            print(
+                f'wating for other nodes to train in round {self.round}...')
+        elif status == 'AVERAGED':
+            if self.isDone():
+                print(f'{self.total_round} round training has completed.')
+                # store the model in the ipfs
+                self.utils.async_shutdown()
+            else:
+                if self.isSelected():
+                    self.async_boardcast(router='get-model',
+                                         params={'avgModel': self.model}, delay=2)
+
+                    print('\n')
+                    # continue to training
+                    # the averaged model has been stored in self.model
+                    self.process_training()
+                else:
+                    # the selected node will boardcast the averaged model
+                    print(f'about to get the model for round {self.round + 1}')
+
+    def async_process_training(self):
+        training_thread = threading.Thread(
+            target=self.process_training)
+        training_thread.start()
+
+    def isDone(self):
+        return self.round == self.total_round
+
+    def isSelected(self):
+        return self.address == self.selected_node
+
+    def load_data(self, data_set):
+        # load the training dataset
+        print('Loading training dataset...')
+        dataset = load_split_train_data()
+
+        self.train_data = dataset[data_set]
+        print(
+            f'Dataset loaded, find totally {self.train_data[0].shape[0]} data')

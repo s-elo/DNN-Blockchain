@@ -34,14 +34,13 @@ def getNodes(modelName):
 
 @app.route('/<modelName>/nodes', methods=['POST'])
 def addNodes(modelName):
-    post_data = request.get_json()
+    # exceed the maximum node number
+    if CLIENT_NUM_LIMIT == len(nodes[modelName]):
+        return jsonify(nodes=None)
 
-    client_addr = request.remote_addr
-    client_port = post_data['port']
+    node_address = request.get_json()['address']
 
-    client_url = f'http://{client_addr}:{client_port}/'
-
-    nodes[modelName].append(client_url)
+    nodes[modelName].append(node_address)
 
     return jsonify(nodes=nodes[modelName])
 
