@@ -3,18 +3,28 @@ import numpy as np
 from random import shuffle
 from PIL import Image
 from tensorflow.keras.utils import to_categorical
+import json
+import requests as rq
 
 
 def get_testset(modelName):
+    print('loading the testset...')
     if modelName == 'cifar10':
-        return get_cifar10()
+        testset = rq.get(
+            f'http://localhost:8080/ipfs/QmXqes1bAQzDjyTD3pNTV6fK5a8LEqy8HiDCS5nJ4FbD9z').json()
+
+        return (np.array(testset['data']), np.array(testset['label']))
+        # return get_cifar10()
 
 
 def get_cifar10():
     imgs = []
     labels = []
 
-    data_path = f'{os.getcwd()}/testset/cifar10'
+    if __name__ == '__main__':
+        data_path = f'{os.getcwd()}/cifar10'
+    else:
+        data_path = f'{os.getcwd()}/testset/cifar10'
 
     CLASS_NAMES = os.listdir(data_path)
     IMG_WIDTH = 32
@@ -50,3 +60,25 @@ def shuffle_dataset(x, y):
     y_new = y[ind_list, ]
 
     return (x_new, y_new)
+
+
+if __name__ == '__main__':
+    import ipfshttpclient as ipfs
+
+    client = ipfs.connect()
+
+    # test_data, test_label = get_testset('cifar10')
+    # print(test_data.shape, test_label.shape)
+
+    # testset_hash = client.add_json({
+    #     'data': test_data.tolist(),
+    #     'label': test_label.tolist()
+    # })
+
+    # print(testset_hash)
+
+    testset = rq.get(
+        f'http://localhost:8080/ipfs/QmXqes1bAQzDjyTD3pNTV6fK5a8LEqy8HiDCS5nJ4FbD9z').json()
+
+    test_data = testset['data']
+    print(np.array(test_data).shape)
