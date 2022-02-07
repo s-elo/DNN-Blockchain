@@ -6,7 +6,7 @@ import requests as rq
 from utils import Utils
 import numpy as np
 import tensorflow as tf
-# from store import model_storage as store
+from train import evaluate
 
 
 class Scheduler:
@@ -24,6 +24,7 @@ class Scheduler:
         self.round = 0
 
         self.train_data = None
+        self.test_data = None
 
         # for current node training
         self.model = None
@@ -47,6 +48,8 @@ class Scheduler:
             print('averaging the models...')
             self.fedAvg()
 
+            self.evaluate()
+
             # clear for next round
             self.models = []
 
@@ -65,6 +68,14 @@ class Scheduler:
         mean_weights = (sum_weights / len(self.models)).tolist()
 
         self.model['params'] = self.utils.params_to_str(mean_weights)
+
+     # evaluate the accuracy of a certain model
+    def evaluate(self):
+        print(f'\nEvaluating the averaged model...')
+        model = model = self.utils.str_to_model(
+            self.model['params'], self.model['archi'])
+
+        evaluate(model, self.test_data)
 
     # implement the selection algro
     def node_selection(self, nodes):

@@ -7,6 +7,7 @@ import threading
 from scheduler import Scheduler
 from train import train
 from dataHandler import load_split_train_data
+import numpy as np
 
 apiKey = 'ab53629910c440089fda82f82af645f7'
 w3 = Web3(Web3.HTTPProvider(
@@ -62,6 +63,16 @@ class Connector(Scheduler):
 
         return model
 
+    def get_testset(self):
+        print('loading the testset...')
+        # it should from the blockchain based on the model name
+        testset_hash = 'QmXqes1bAQzDjyTD3pNTV6fK5a8LEqy8HiDCS5nJ4FbD9z'
+
+        testset = rq.get(
+            f'{self.ipfs_server_node}/{testset_hash}').json()
+
+        return (np.array(testset['data']), np.array(testset['label']))
+
     def join_network(self):
         print(
             f'requesting to join the {self.modelName} current training network...')
@@ -82,6 +93,10 @@ class Connector(Scheduler):
         if len(nodes) == self.total_node:
             # select the last node as the schedule node for the network and boardcast
             # except notify itself
+            print('\n')
+            print('You are the chosen one to average the models from other nodes!')
+            self.test_data = self.get_testset()
+
             self.selected_node = self.address
             self.async_boardcast(router='node-selected', params={
                 'node': self.node_selection(nodes)}, delay=2)
@@ -116,7 +131,7 @@ class Connector(Scheduler):
             self.model['params'], self.model['archi'])
 
         self.round = self.round + 1
-        
+
         print(f'Training at round {self.round}')
 
         trained_model = train(model, self.train_data)

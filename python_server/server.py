@@ -3,10 +3,15 @@ from flask import Flask, jsonify, request
 # import time
 # import threading
 from scheduler import Scheduler
+import sys
 
 CLIENT_NUM_LIMIT = 2
 TRAIN_ROUND = 2
-dl = Scheduler(['cifar10'], CLIENT_NUM_LIMIT, TRAIN_ROUND)
+
+load_testset = False if len(sys.argv) >= 2 else True
+
+dl = Scheduler(['cifar10'], CLIENT_NUM_LIMIT,
+               TRAIN_ROUND, load_testset=load_testset)
 
 app = Flask(__name__)
 

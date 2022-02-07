@@ -38,3 +38,14 @@ def train(model, train_data):
               steps_per_epoch=train_imgs.shape[0] // BATCH_SIZE)
 
     return model
+
+
+def evaluate(model, test_data):
+    model.compile(optimizer=tf.keras.optimizers.Adam(),
+                  loss='categorical_crossentropy',
+                  metrics=['accuracy'])
+
+    test_imgs = test_data[0]
+    test_labels = test_data[1]
+
+    model.evaluate(test_imgs, test_labels)

@@ -10,7 +10,7 @@ from store import model_storage as store
 
 
 class Scheduler:
-    def __init__(self, modelNames: List[str], client_num, train_round) -> None:
+    def __init__(self, modelNames: List[str], client_num, train_round, load_testset=False) -> None:
         self.utils = Utils()
 
         # fiex value for each model
@@ -30,7 +30,7 @@ class Scheduler:
             self.clients[m] = []
 
             model_info = {
-                'testset': get_testset(m),
+                'testset': get_testset(m) if load_testset else None,
                 # get compiled model (only need the structure actually)
                 'model': store.get_initial_model(m)
             }

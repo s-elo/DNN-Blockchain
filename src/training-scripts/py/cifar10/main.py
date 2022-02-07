@@ -6,6 +6,7 @@ from connection import Connector
 from dataHandler import load_split_train_data
 import threading
 
+# it should be the ipfs node
 SERVER_DOMAIN = 'http://localhost'
 SERVER_PORT = '5000'
 
