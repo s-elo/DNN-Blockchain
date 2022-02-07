@@ -140,10 +140,10 @@ if __name__ == '__main__':
 
     abi = contract_info['abi']
 
-    resp = rq.get(
-        f'https://api-ropsten.etherscan.io/api?module=contract&action=getabi&address={contractAddress}')
+    # resp = rq.get(
+    #     f'https://api-ropsten.etherscan.io/api?module=contract&action=getabi&address={contractAddress}')
 
-    print(resp)
+    # print(resp)
 
     # w3.eth.default_account = '0x8eacBB337647ea34eC26804C3339e80EB488587c'
     # w3.eth.account.from_key(private_key)
@@ -178,17 +178,17 @@ if __name__ == '__main__':
     string = contract.functions.get().call()
     print(string)
 
-    # client = ipfs.connect()
+    client = ipfs.connect()
     # pin_list = client.pin.ls(type='all')
     # print(pin_list['Keys']['QmTdKW1bkQB5jjhd2cW8CghFzHzCZT8Mv7cGZdyqM5s4mm'])
     # print(len(client.get_json(
     #     'QmTdKW1bkQB5jjhd2cW8CghFzHzCZT8Mv7cGZdyqM5s4mm')['params']))
     # model_hash = client.add_json(data)
 
-    # model_hash = 'QmTdKW1bkQB5jjhd2cW8CghFzHzCZT8Mv7cGZdyqM5s4mm'
+    model_hash = 'QmUoPtUsFz5n98ycwGfcvCPTS16aZ42kiLmtx1nbnPoFgT'
     # print(model_hash)
 
     # print(client.cat('QmfXT9rNL5rnvHv3yy1di5nrAdNPXfv7re7t4xGE6yXUod'))
-    # resp = rq.get(f'http://localhost:8080/ipfs/{model_hash}')
+    resp = rq.get(f'http://localhost:8080/ipfs/{model_hash}')
 
-    # print(len(resp.json()['params']))
+    print(len(resp.json()['params']))

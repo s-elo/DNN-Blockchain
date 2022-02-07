@@ -11,7 +11,7 @@ def get_testset(modelName):
     print('loading the testset...')
     if modelName == 'cifar10':
         testset = rq.get(
-            f'http://localhost:8080/ipfs/QmXqes1bAQzDjyTD3pNTV6fK5a8LEqy8HiDCS5nJ4FbD9z').json()
+            f'http://localhost:8080/ipfs/QmSHfdkQh3GG9JGaw2zihshNdm4nC29q4vp4d1pZKtHVCD').json()
 
         return (np.array(testset['data']), np.array(testset['label']))
         # return get_cifar10()
@@ -67,8 +67,8 @@ if __name__ == '__main__':
 
     client = ipfs.connect()
 
-    # test_data, test_label = get_testset('cifar10')
-    # print(test_data.shape, test_label.shape)
+    test_data, test_label = get_testset('cifar10')
+    print(test_data.shape, test_label.shape)
 
     # testset_hash = client.add_json({
     #     'data': test_data.tolist(),
@@ -76,9 +76,8 @@ if __name__ == '__main__':
     # })
 
     # print(testset_hash)
+    # testset = rq.get(
+    #     f'http://localhost:8080/ipfs/{testset_hash}').json()
 
-    testset = rq.get(
-        f'http://localhost:8080/ipfs/QmXqes1bAQzDjyTD3pNTV6fK5a8LEqy8HiDCS5nJ4FbD9z').json()
-
-    test_data = testset['data']
-    print(np.array(test_data).shape)
+    # test_data = testset['data']
+    # print(np.array(test_data).shape)

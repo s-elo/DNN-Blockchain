@@ -45,7 +45,7 @@ class ModelStorage:
         # self.client.pin.rm(prev_model_hash)
 
         tx_hash = self.callMethod(
-            main_contract, 'set', 'QmTdKW1bkQB5jjhd2cW8CghFzHzCZT8Mv7cGZdyqM5s4mm')
+            main_contract, 'set', 'QmUoPtUsFz5n98ycwGfcvCPTS16aZ42kiLmtx1nbnPoFgT')
         # tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
 
         return intial_models[modelName]()

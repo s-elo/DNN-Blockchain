@@ -57,8 +57,8 @@ class Connector(Scheduler):
         if ipfs != True:
             model = rq.get(self.server_addr).json()['model']
         else:
-            model_hash = main_contract.functions.get().call()
-
+            # model_hash = main_contract.functions.get().call()
+            model_hash = 'QmUoPtUsFz5n98ycwGfcvCPTS16aZ42kiLmtx1nbnPoFgT'
             model = rq.get(f'{self.ipfs_server_node}/{model_hash}').json()
 
         return model
@@ -66,7 +66,7 @@ class Connector(Scheduler):
     def get_testset(self):
         print('loading the testset...')
         # it should from the blockchain based on the model name
-        testset_hash = 'QmXqes1bAQzDjyTD3pNTV6fK5a8LEqy8HiDCS5nJ4FbD9z'
+        testset_hash = 'QmSHfdkQh3GG9JGaw2zihshNdm4nC29q4vp4d1pZKtHVCD'
 
         testset = rq.get(
             f'{self.ipfs_server_node}/{testset_hash}').json()
