@@ -29,6 +29,14 @@ ipfs daemon
 
 Put the training dataset at /src/training-scripts/py/modelName/dataset. Use the names of the classes as the sub-folder name
 
+**Account Preparation:**
+
+Create a file call **privateKey.py** at the /src/training-scripts/py/modelName/ and add the private key of your account in the file. It will be used to send the transaction when imutating the state of the smart contract.
+
+```python
+private_key = 'your private key'
+```
+
 **Run the training nodes:**
 
 ```bash
