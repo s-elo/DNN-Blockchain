@@ -1,30 +1,43 @@
 {
-    "address": "0x91120b64E9E1aD109EeD15FCA792af3d9F4a43B9",
+    "address": "0x76FD83819da5AE5ace906D19B4e8C85cE58DBdE6",
     "abi": [
-        {
-            "inputs": [],
-            "name": "get",
-            "outputs": [
-                {
-                    "internalType": "string",
-                    "name": "",
-                    "type": "string"
-                }
-            ],
-            "stateMutability": "view",
-            "type": "function"
-        },
         {
             "inputs": [
                 {
                     "internalType": "string",
-                    "name": "x",
+                    "name": "ipAddress",
                     "type": "string"
                 }
             ],
-            "name": "set",
+            "name": "addNode",
+            "outputs": [
+                {
+                    "internalType": "string[]",
+                    "name": "",
+                    "type": "string[]"
+                }
+            ],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "inputs": [],
+            "name": "clearNodes",
             "outputs": [],
             "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "inputs": [],
+            "name": "getNodes",
+            "outputs": [
+                {
+                    "internalType": "string[]",
+                    "name": "",
+                    "type": "string[]"
+                }
+            ],
+            "stateMutability": "view",
             "type": "function"
         }
     ]

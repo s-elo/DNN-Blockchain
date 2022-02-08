@@ -8,6 +8,7 @@ from scheduler import Scheduler
 from train import train
 from dataHandler import load_split_train_data
 import numpy as np
+from privateKey import private_key
 
 apiKey = 'ab53629910c440089fda82f82af645f7'
 w3 = Web3(Web3.HTTPProvider(
@@ -24,6 +25,30 @@ contractAddress = contract_info['address']
 abi = contract_info['abi']
 main_contract = w3.eth.contract(contractAddress, abi=abi)
 
+# for blockchain state-imutate functions
+
+
+def callMethod(contract, method, *args):
+    nonce = w3.eth.get_transaction_count(
+        '0x8eacBB337647ea34eC26804C3339e80EB488587c')
+
+    # {
+    #     'chainId': 1,
+    #     'gas': 70000,
+    #     'maxFeePerGas': w3.toWei('2', 'gwei'),
+    #     'maxPriorityFeePerGas': w3.toWei('1', 'gwei'),
+    #     'nonce': nonce,
+    # }
+    builded_txn = contract.functions[method](
+        *args).buildTransaction({'nonce': nonce})
+
+    signed_txn = w3.eth.account.sign_transaction(
+        builded_txn, private_key=private_key)
+
+    tx_hash = w3.eth.send_raw_transaction(signed_txn.rawTransaction)
+
+    return w3.eth.wait_for_transaction_receipt(tx_hash)
+
 
 class Connector(Scheduler):
     def __init__(self, server_domain, server_port, self_port, modelName, data_set, node_num=2, total_round=2) -> None:
@@ -38,10 +63,10 @@ class Connector(Scheduler):
 
         self.data_set = data_set
 
-    def check_model(self, from_ipfs=False):
+    def check_model(self):
         # request to join the training and get the model
         print(f'getting the mdoel from ipfs...')
-        model = self.get_model(ipfs=from_ipfs)
+        model = self.get_model()
 
         if model == None:
             print('seems the server/blockchain has a bit problem, try again next time')
@@ -51,15 +76,12 @@ class Connector(Scheduler):
 
         return model
 
-    def get_model(self, ipfs=False):
+    def get_model(self):
         # get the model from server for simulation
-        # it should actually get the model from blockchain (ipfs)
-        if ipfs != True:
-            model = rq.get(self.server_addr).json()['model']
-        else:
-            # model_hash = main_contract.functions.get().call()
-            model_hash = 'QmUoPtUsFz5n98ycwGfcvCPTS16aZ42kiLmtx1nbnPoFgT'
-            model = rq.get(f'{self.ipfs_server_node}/{model_hash}').json()
+        # it should actually get the hash from blockchain (ipfs)
+        # model_hash = main_contract.functions.get().call()
+        model_hash = 'QmUoPtUsFz5n98ycwGfcvCPTS16aZ42kiLmtx1nbnPoFgT'
+        model = rq.get(f'{self.ipfs_server_node}/{model_hash}').json()
 
         return model
 
@@ -73,21 +95,51 @@ class Connector(Scheduler):
 
         return (np.array(testset['data']), np.array(testset['label']))
 
+    def getNodes(self):
+        # it should fetch from the blockchain
+        # nodes = rq.post(f'{self.server_addr}/nodes', json={
+        #     'address': self.address}).json()['nodes']
+        nodes = main_contract.functions.getNodes().call()
+
+        return nodes
+
+    def addNode(self):
+        try:
+            receipt = callMethod(main_contract, 'addNode', self.address)
+            # print(receipt)
+        except ValueError:
+            print('One node is joining, please wait a minute to join again')
+            os._exit(0)
+
+    def clearNodes(self):
+        # clear the ip address asyncly
+        thread = threading.Thread(
+            target=callMethod, args=(main_contract, 'clearNodes'))
+        thread.start()
+        # receipt = callMethod(main_contract, 'clearNodes')
+        # print(receipt)
+
     def join_network(self):
         print(
             f'requesting to join the {self.modelName} current training network...')
 
-        # it should fetch from the blockchain
-        nodes = rq.post(f'{self.server_addr}/nodes', json={
-            'address': self.address}).json()['nodes']
+        nodes = self.getNodes()
 
         # it means exceeding the maximum node number
-        if nodes == None:
+        if len(nodes) >= self.total_node:
             print(
                 f'Reached the maximum node number of the current training, please join next time.')
             os._exit(0)
 
+        self.addNode()
+
+        # after adding successfully
+        nodes.append(self.address)
         print(nodes)
+
+        # get the model and check if it exists
+        self.check_model()
+
         self.nodes = nodes
 
         if len(nodes) == self.total_node:
@@ -151,6 +203,10 @@ class Connector(Scheduler):
         elif status == 'AVERAGED':
             if self.isDone():
                 print(f'{self.total_round} round training has completed.')
+
+                if self.isSelected():
+                    self.clearNodes()
+
                 # store the model in the ipfs
                 self.utils.async_shutdown()
             else:
@@ -185,3 +241,8 @@ class Connector(Scheduler):
         self.train_data = dataset[data_set]
         print(
             f'Dataset loaded, find totally {self.train_data[0].shape[0]} data')
+
+
+if __name__ == '__main__':
+    receipt = callMethod(main_contract, 'clearNodes')
+    print('cleared')

@@ -21,27 +21,17 @@ MODEL_NAME = 'cifar10'
 NODE_NUM = 2
 ROUND = 2
 
-from_ipfs = False
-
 dnn = Connector(SERVER_DOMAIN, SERVER_PORT, PORT,
                 MODEL_NAME, SET, NODE_NUM, ROUND)
 
-dnn.check_model(from_ipfs=from_ipfs)
-
 # join the network
 dnn.join_network()
-
-# execute for the first time
-# print('first trianing...')
-# train_process_thread = threading.Thread(
-#     target=dnn.process_training, args=(train_data))
-# train_process_thread.start()
-
 
 node = Flask(__name__)
 
 
 @node.route('/join-average', methods=['POST'])
+# only for the selected node
 def schedule():
     post_data = request.get_json()
 
@@ -57,6 +47,9 @@ def schedule():
     if status == 'AVERAGED':
         if dnn.isDone():
             print(f'{ROUND} round training has completed.')
+
+            dnn.clearNodes()
+
             # store the model to ipfs
 
             # shutdown after returning the response
