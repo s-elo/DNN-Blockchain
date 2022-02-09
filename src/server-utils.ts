@@ -2,7 +2,12 @@ import path from "path";
 import fs from "fs-extra";
 import archiver from "archiver";
 
-export function getScriptNames(types?: string[]) {
+const filterNames = ["privateKey.py"];
+
+export function getScriptNames(
+  types?: string[],
+  filter?: (scriptName: string) => boolean
+) {
   // get the types of the scripts
   const scriptTypes = types
     ? types
@@ -24,7 +29,7 @@ export function getScriptNames(types?: string[]) {
     return names.concat(...addSuffix(curScriptNames, curType));
   }, [] as string[]);
 
-  return scriptNames;
+  return scriptNames.filter(filter ? filter : () => true);
 }
 
 export function compressScript(
@@ -47,8 +52,13 @@ export function compressScript(
 
     const outputStream = fs.createWriteStream(`${outputPath}`);
 
-    const fileNames = await getFileNames(scriptDirPath);
-
+    const fileNames = await getFileNames(
+      scriptDirPath,
+      // remove the files that should be filtered
+      (name) => !filterNames.includes(name)
+    );
+    console.log(fileNames);
+      
     // temporarily copy the files to a new dir
     // to exclude other dirs like logs, dataset and _pycache_
     const copyDirPath = path.resolve(scriptDirPath, ".", "tempt");
@@ -108,7 +118,10 @@ export const addSuffix = (scriptNames: string[], suffix: string) =>
 export const splitSuffix = (scriptName: string) =>
   scriptName.split("-") as [string, string];
 
-export function getFileNames(dirPath: string) {
+export function getFileNames(
+  dirPath: string,
+  filter?: (fileName: string) => boolean
+) {
   return new Promise<string[]>((res) => {
     // all the names including dirs
     const names = fs.readdirSync(dirPath);
@@ -117,7 +130,7 @@ export function getFileNames(dirPath: string) {
       fs.statSync(path.resolve(dirPath, name)).isFile()
     );
 
-    res(fileNames);
+    res(fileNames.filter(filter ? filter : () => true));
   });
 }
 

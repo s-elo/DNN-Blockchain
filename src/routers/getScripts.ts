@@ -5,7 +5,6 @@ import { getScriptNames, compressScript, splitSuffix } from "../server-utils";
 const router = express.Router();
 
 const scriptNames = getScriptNames();
-console.log(scriptNames);
 
 scriptNames.forEach((scriptName) => {
   // /get-scripts/{scriptName(with suffix)}
@@ -36,7 +35,13 @@ scriptNames.forEach((scriptName) => {
 
   router.get("/", async (_, res) => {
     // so far only get the python scripts
-    const pythonScriptNames = getScriptNames(["py"]);
+    const pythonScriptNames = getScriptNames(
+      ["py"],
+      (name) => {
+        // filter the xxx_cen scripts
+        return !name.match(/_cen/g);
+      }
+    );
 
     const resData = pythonScriptNames.map((name) => ({
       name: name.split("-")[0],
