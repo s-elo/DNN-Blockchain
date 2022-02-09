@@ -28,9 +28,9 @@ main_contract = w3.eth.contract(contractAddress, abi=abi)
 # for blockchain state-imutate functions
 
 
-def callMethod(contract, method, *args):
+def callMethod(account, contract, method, *args):
     nonce = w3.eth.get_transaction_count(
-        '0x8eacBB337647ea34eC26804C3339e80EB488587c')
+        account)
 
     # {
     #     'chainId': 1,
@@ -51,9 +51,11 @@ def callMethod(contract, method, *args):
 
 
 class Connector(Scheduler):
-    def __init__(self, server_domain, server_port, self_port, modelName, data_set, node_num=2, total_round=2) -> None:
+    def __init__(self, server_domain, server_port, self_port, modelName, data_set, account_address, node_num=2, total_round=2) -> None:
         super(Connector, self).__init__(
             self_port, modelName, node_num, total_round)
+
+        self.account_address = "0x8eacBB337647ea34eC26804C3339e80EB488587c" if account_address == None else account_address
 
         self.server_domain = server_domain
         self.server_port = server_port
@@ -105,7 +107,8 @@ class Connector(Scheduler):
 
     def addNode(self):
         try:
-            receipt = callMethod(main_contract, 'addNode', self.address)
+            receipt = callMethod(self.account_address,
+                                 main_contract, 'addNode', self.address)
             # print(receipt)
         except ValueError:
             print('One node is joining, please wait a minute to join again')
@@ -114,7 +117,7 @@ class Connector(Scheduler):
     def clearNodes(self):
         # clear the ip address asyncly
         thread = threading.Thread(
-            target=callMethod, args=(main_contract, 'clearNodes'))
+            target=callMethod, args=(self.account_address, main_contract, 'clearNodes'))
         thread.start()
         # receipt = callMethod(main_contract, 'clearNodes')
         # print(receipt)
@@ -244,5 +247,6 @@ class Connector(Scheduler):
 
 
 if __name__ == '__main__':
-    receipt = callMethod(main_contract, 'clearNodes')
+    receipt = callMethod(
+        "0x8eacBB337647ea34eC26804C3339e80EB488587c", main_contract, 'clearNodes')
     print('cleared')

@@ -5,6 +5,7 @@ import os
 from connection import Connector
 from dataHandler import load_split_train_data
 import threading
+ADDRESS = None
 
 # it should be the ipfs node
 SERVER_DOMAIN = 'http://localhost'
@@ -21,8 +22,11 @@ MODEL_NAME = 'cifar10'
 NODE_NUM = 2
 ROUND = 2
 
+if ADDRESS == None:
+    ADDRESS = "0x8eacBB337647ea34eC26804C3339e80EB488587c"
+
 dnn = Connector(SERVER_DOMAIN, SERVER_PORT, PORT,
-                MODEL_NAME, SET, NODE_NUM, ROUND)
+                MODEL_NAME, SET, ADDRESS, NODE_NUM, ROUND)
 
 # join the network
 dnn.join_network()

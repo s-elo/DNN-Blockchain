@@ -57,7 +57,6 @@ export function compressScript(
       // remove the files that should be filtered
       (name) => !filterNames.includes(name)
     );
-    console.log(fileNames);
       
     // temporarily copy the files to a new dir
     // to exclude other dirs like logs, dataset and _pycache_
