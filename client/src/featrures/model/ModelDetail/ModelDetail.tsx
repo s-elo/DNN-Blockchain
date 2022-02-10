@@ -48,7 +48,12 @@ export default function ModelDetail(
     iframe.src = `http://localhost:3500/get-scripts/${modelName}-py?address=${address}`;
   };
 
-  if (!model) return <div>No such model</div>;
+  if (!model) {
+    props.history.push("/");
+
+    // need to return the jsx even though it is useless
+    return <div>no such model</div>;
+  }
 
   return (
     <>
@@ -79,3 +84,5 @@ export default function ModelDetail(
     </>
   );
 }
+
+// export default withRouter(ModelDetail);
