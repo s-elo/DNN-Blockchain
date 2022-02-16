@@ -10,13 +10,22 @@ contract Dnn {
         // the testset hash stored in IPFS
         string testset_hash;
         // current accuracy
-        uint256 accuracy;
+        string accuracy;
         // used to build up the distributed training network
         string[] nodes;
         // the number of current joined node
         uint256 node_num;
         // required number of training nodes
         uint256 total_nodes;
+    }
+
+    struct ModelInfo {
+        // the model params hash stored in IPFS
+        string ipfs_hash;
+        // the testset hash stored in IPFS
+        string testset_hash;
+        // current accuracy
+        string accuracy;
     }
 
     // indice according to the model name
@@ -26,7 +35,7 @@ contract Dnn {
         string memory modelName,
         string memory ipfs_hash,
         string memory testset_hash,
-        uint256 accuracy,
+        string memory accuracy,
         uint256 total_nodes
     ) public {
         models[modelName] = Model({
@@ -54,19 +63,16 @@ contract Dnn {
     function getModelInfo(string memory modelName)
         public
         view
-        returns (
-            string memory,
-            string memory,
-            uint256
-        )
+        returns (ModelInfo memory)
     {
         Model memory queryModel = models[modelName];
 
-        return (
-            queryModel.ipfs_hash,
-            queryModel.testset_hash,
-            queryModel.accuracy
-        );
+        return
+            ModelInfo({
+                ipfs_hash: queryModel.ipfs_hash,
+                testset_hash: queryModel.testset_hash,
+                accuracy: queryModel.accuracy
+            });
     }
 
     function getNodes(string memory modelName)
@@ -83,5 +89,9 @@ contract Dnn {
         }
 
         return ret;
+    }
+
+    function clearNodes(string memory modelName) public {
+        delete models[modelName].nodes;
     }
 }

@@ -13,7 +13,7 @@ contract SingleModelStorage {
         // model = new string(len);
     }
 
-    function set(string memory new_model, uint256 batch) public {
+    function set(string memory new_model) public {
         model = string(concat(model, new_model));
         // bytes memory new_model_byte = bytes(new_model);
         // for (uint256 i = 0; i < new_model_byte.length; i++) {
