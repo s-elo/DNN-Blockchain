@@ -8,46 +8,7 @@ from scheduler import Scheduler
 from train import train
 from dataHandler import load_split_train_data
 import numpy as np
-from privateKey import private_key
-
-apiKey = 'ab53629910c440089fda82f82af645f7'
-w3 = Web3(Web3.HTTPProvider(
-    f'https://ropsten.infura.io/v3/{apiKey}'))
-
-
-def read(path='./contract.json'):
-    with open(path, 'r') as load_f:
-        return json.load(load_f)
-
-
-contract_info = read(path='./contract.json')
-contractAddress = contract_info['address']
-abi = contract_info['abi']
-main_contract = w3.eth.contract(contractAddress, abi=abi)
-
-# for blockchain state-imutate functions
-
-
-def callMethod(account, contract, method, *args):
-    nonce = w3.eth.get_transaction_count(
-        account)
-
-    # {
-    #     'chainId': 1,
-    #     'gas': 70000,
-    #     'maxFeePerGas': w3.toWei('2', 'gwei'),
-    #     'maxPriorityFeePerGas': w3.toWei('1', 'gwei'),
-    #     'nonce': nonce,
-    # }
-    builded_txn = contract.functions[method](
-        *args).buildTransaction({'nonce': nonce})
-
-    signed_txn = w3.eth.account.sign_transaction(
-        builded_txn, private_key=private_key)
-
-    tx_hash = w3.eth.send_raw_transaction(signed_txn.rawTransaction)
-
-    return w3.eth.wait_for_transaction_receipt(tx_hash)
+from contract import Contract
 
 
 class Connector(Scheduler):
@@ -64,6 +25,8 @@ class Connector(Scheduler):
         self.ipfs_server_node = f'{server_domain}:{8080}/ipfs'
 
         self.data_set = data_set
+
+        self.contract = Contract(account_address)
 
     def check_model(self):
         # request to join the training and get the model
@@ -101,15 +64,13 @@ class Connector(Scheduler):
         # it should fetch from the blockchain
         # nodes = rq.post(f'{self.server_addr}/nodes', json={
         #     'address': self.address}).json()['nodes']
-        nodes = main_contract.functions.getNodes().call()
+        nodes = self.contract.getNodes()
 
         return nodes
 
     def addNode(self):
         try:
-            receipt = callMethod(self.account_address,
-                                 main_contract, 'addNode', self.address)
-            # print(receipt)
+            self.contract.addNode(self.address)
         except ValueError:
             print('One node is joining, please wait a minute to join again')
             os._exit(0)
@@ -117,7 +78,7 @@ class Connector(Scheduler):
     def clearNodes(self):
         # clear the ip address asyncly
         thread = threading.Thread(
-            target=callMethod, args=(self.account_address, main_contract, 'clearNodes'))
+            target=self.contract.clearNodes, args=('clearNodes'))
         thread.start()
         # receipt = callMethod(main_contract, 'clearNodes')
         # print(receipt)
@@ -247,6 +208,6 @@ class Connector(Scheduler):
 
 
 if __name__ == '__main__':
-    receipt = callMethod(
-        "0x8eacBB337647ea34eC26804C3339e80EB488587c", main_contract, 'clearNodes')
+    sc = Contract("0x8eacBB337647ea34eC26804C3339e80EB488587c")
+    receipt = sc.clearNodes()
     print('cleared')
