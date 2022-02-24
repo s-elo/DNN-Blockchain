@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import tensorflow as tf
-from dataHandler import load_split_train_data, load_data, dataAugment, CLASS_NUM
+from dataHandler import load_split_train_data, load_data, dataAugment, CLASS_NUM, load_remote
 from model import getModel
 import shutil
 import os
@@ -9,17 +9,18 @@ import os
 shutil.rmtree('./ret_img')
 os.mkdir('./ret_img')
 
-print('Loading data...')
-dataset = load_split_train_data()
-test_imgs, test_labels = load_data(type='TEST')
-print('Data loaded.')
-print(len(dataset), dataset[0][0].shape, dataset[0][1].shape)
-
 KERNEL_SIZE = 3
-BATCH_SIZE = 64
+BATCH_SIZE = 256
 EPOCH = 20
 ROUND = 10
 USER_NUM = 5
+
+print('Loading data...')
+dataset, test_imgs, test_labels, _, _ = load_remote(USER_NUM)
+# dataset = load_split_train_data()
+# test_imgs, test_labels = load_data(type='TEST')
+print('Data loaded.')
+print(len(dataset), dataset[0][0].shape, dataset[0][1].shape)
 
 users_acc = [[]]*USER_NUM
 users_val_acc = [[]]*USER_NUM

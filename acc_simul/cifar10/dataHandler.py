@@ -2,6 +2,7 @@ import os
 import numpy as np
 from random import shuffle
 from PIL import Image
+import tensorflow as tf
 from tensorflow.keras.utils import to_categorical
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
@@ -14,6 +15,26 @@ CLASS_NUM = len(CLASS_NAMES)
 IMG_WIDTH = 32
 IMG_HEIGHT = 32
 IMG_CHANNEL = 3
+
+
+def load_remote(split_num=1):
+    (x_train, y_train), (x_test, y_test) = tf.keras.datasets.cifar10.load_data()
+
+    # do the shuffle
+    x_train, y_train = shuffle_dataset(x_train, y_train)
+    x_test, y_test = shuffle_dataset(x_test, y_test)
+
+    x_train = x_train / 255
+    x_test = x_test / 255
+
+    y_train = to_categorical(y_train, num_classes=CLASS_NUM)
+    y_test = to_categorical(y_test, num_classes=CLASS_NUM)
+
+    # split the training data
+    train_split_data = list(
+        zip(np.split(x_train, split_num, axis=0), np.split(y_train, split_num, axis=0)))
+
+    return (train_split_data, x_test, y_test, x_train, y_train)
 
 
 def load_data(type='TRAIN'):
@@ -47,12 +68,12 @@ def load_data(type='TRAIN'):
     return shuffle_dataset(x, y)
 
 
-def load_split_train_data():
+def load_split_train_data(user_num=5):
     data_path = TRAIN_PATH
     dataset = []
 
     # initialize the dataset array
-    for _ in range(0, 5):
+    for _ in range(0, user_num):
         imgs = []
         labels = []
         dataset.append((imgs, labels))
@@ -76,7 +97,7 @@ def load_split_train_data():
             # convert into a vector
             img_vector = np.array(img).reshape(
                 IMG_WIDTH*IMG_HEIGHT*IMG_CHANNEL)/255
-            
+
             # add to the current batch
             dataset[batchIdx][0].append(img_vector)
             dataset[batchIdx][1].append(classIdx)
@@ -84,7 +105,7 @@ def load_split_train_data():
             imgIdx += 1
 
     # reconstruct the batches
-    for batchIdx in range(0, 5):
+    for batchIdx in range(0, user_num):
         cur_batch_imgs = dataset[batchIdx][0]
         cur_batch_labels = dataset[batchIdx][1]
 
@@ -128,3 +149,13 @@ def shuffle_dataset(x, y):
     y_new = y[ind_list, ]
 
     return (x_new, y_new)
+
+
+if __name__ == '__main__':
+    arr1 = np.array([[1, 2], [2, 3], [4, 5], [6, 7]])
+    arr2 = np.array([[1], [2], [3], [4]])
+    # x_shuffle, y_shuffle = shuffle_dataset(arr1, arr2)
+    # print(x_shuffle, y_shuffle)
+    print(np.split(arr1, 1, axis=0), np.split(arr2, 1, axis=0))
+    print(list(zip(arr1, arr2)))
+    load_remote()
