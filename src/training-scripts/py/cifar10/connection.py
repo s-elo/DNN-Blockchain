@@ -6,7 +6,7 @@ import os
 import threading
 from scheduler import Scheduler
 from train import train
-from dataHandler import load_split_train_data
+from dataHandler import load_remote
 import numpy as np
 from contract import Contract
 
@@ -78,7 +78,7 @@ class Connector(Scheduler):
     def clearNodes(self):
         # clear the ip address asyncly
         thread = threading.Thread(
-            target=self.contract.clearNodes, args=('clearNodes'))
+            target=self.contract.clearNodes)
         thread.start()
         # receipt = callMethod(main_contract, 'clearNodes')
         # print(receipt)
@@ -200,7 +200,7 @@ class Connector(Scheduler):
     def load_data(self, data_set):
         # load the training dataset
         print('Loading training dataset...')
-        dataset = load_split_train_data()
+        dataset = load_remote(split_num=5)
 
         self.train_data = dataset[data_set]
         print(

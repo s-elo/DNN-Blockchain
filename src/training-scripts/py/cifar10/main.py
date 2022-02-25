@@ -1,10 +1,6 @@
 from flask import Flask, request, jsonify
-import time
 import sys
-import os
 from connection import Connector
-from dataHandler import load_split_train_data
-import threading
 ADDRESS = None
 
 # it should be the ipfs node
