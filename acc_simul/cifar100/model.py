@@ -41,7 +41,7 @@ def getModel(input_shape, kernel_size, class_num, reg=True, normal=True):
                             kernel_initializer='he_normal', padding='same'))
     if (normal):
         model.add(layers.BatchNormalization())
-        
+
     model.add(layers.MaxPooling2D(pool_size=2, strides=2, padding='same'))
 
     # flatten as one dimension
@@ -56,5 +56,17 @@ def getModel(input_shape, kernel_size, class_num, reg=True, normal=True):
     # final fully connected layer CLASS_NUM neurons with respect to CLASS_NUM subjects
     model.add(layers.Dense(units=class_num, activation='softmax',
               kernel_initializer='he_normal', kernel_regularizer='l2' if reg else None))
+
+    return model
+
+
+def get_regnet(input_shape, class_num):
+    model = models.Sequential()
+
+    model.add(tf.keras.applications.regnet.RegNetY320(
+        model_name='regnety320', include_top=True, include_preprocessing=True,
+        weights=None, input_tensor=None, input_shape=input_shape, pooling=None,
+        classes=class_num, classifier_activation='softmax'
+    ))
 
     return model

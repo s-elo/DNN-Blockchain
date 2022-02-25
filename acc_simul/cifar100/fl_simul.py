@@ -6,7 +6,8 @@ from model import getModel
 import shutil
 import os
 
-shutil.rmtree('./ret_img')
+if os.path.exists('./ret_img') == True:
+    shutil.rmtree('./ret_img')
 os.mkdir('./ret_img')
 
 KERNEL_SIZE = 3
