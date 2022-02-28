@@ -10,7 +10,7 @@ TRAIN_PATH = './dataset/train'
 TEST_PATH = './dataset/test'
 
 CLASS_NAMES = os.listdir(TRAIN_PATH)
-CLASS_NUM = len(CLASS_NAMES)
+CLASS_NUM = 100
 
 IMG_WIDTH = 32
 IMG_HEIGHT = 32
@@ -18,7 +18,7 @@ IMG_CHANNEL = 3
 
 
 def load_remote(split_num=1):
-    (x_train, y_train), (x_test, y_test) = tf.keras.datasets.cifar10.load_data()
+    (x_train, y_train), (x_test, y_test) = tf.keras.datasets.cifar100.load_data()
 
     # do the shuffle
     x_train, y_train = shuffle_dataset(x_train, y_train)

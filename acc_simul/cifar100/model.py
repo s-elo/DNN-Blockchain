@@ -10,7 +10,6 @@ def getModel(input_shape, kernel_size, class_num, reg=True, normal=True):
                             input_shape=input_shape, kernel_initializer='he_normal', padding='same'))
     if (normal):
         model.add(layers.BatchNormalization())
-
     model.add(layers.Conv2D(filters=64, strides=1, kernel_size=kernel_size, activation='relu',
                             kernel_initializer='he_normal', padding='same'))
     if (normal):
@@ -23,7 +22,6 @@ def getModel(input_shape, kernel_size, class_num, reg=True, normal=True):
                             kernel_initializer='he_normal', padding='same'))
     if (normal):
         model.add(layers.BatchNormalization())
-
     model.add(layers.Conv2D(filters=128, strides=1, kernel_size=kernel_size, activation='relu',
                             kernel_initializer='he_normal', padding='same'))
     if (normal):
@@ -36,8 +34,30 @@ def getModel(input_shape, kernel_size, class_num, reg=True, normal=True):
                             kernel_initializer='he_normal', padding='same'))
     if (normal):
         model.add(layers.BatchNormalization())
-
     model.add(layers.Conv2D(filters=256, strides=1, kernel_size=kernel_size, activation='relu',
+                            kernel_initializer='he_normal', padding='same'))
+    if (normal):
+        model.add(layers.BatchNormalization())
+
+    model.add(layers.MaxPooling2D(pool_size=2, strides=2, padding='same'))
+
+    # stage 4
+    model.add(layers.Conv2D(filters=512, strides=1, kernel_size=kernel_size, activation='relu',
+                            kernel_initializer='he_normal', padding='same'))
+    if (normal):
+        model.add(layers.BatchNormalization())
+    model.add(layers.Conv2D(filters=512, strides=1, kernel_size=kernel_size, activation='relu',
+                            kernel_initializer='he_normal', padding='same'))
+    if (normal):
+        model.add(layers.BatchNormalization())
+    model.add(layers.MaxPooling2D(pool_size=2, strides=2, padding='same'))
+
+    # stage 5
+    model.add(layers.Conv2D(filters=512, strides=1, kernel_size=kernel_size, activation='relu',
+                            kernel_initializer='he_normal', padding='same'))
+    if (normal):
+        model.add(layers.BatchNormalization())
+    model.add(layers.Conv2D(filters=512, strides=1, kernel_size=kernel_size, activation='relu',
                             kernel_initializer='he_normal', padding='same'))
     if (normal):
         model.add(layers.BatchNormalization())
@@ -47,11 +67,15 @@ def getModel(input_shape, kernel_size, class_num, reg=True, normal=True):
     # flatten as one dimension
     model.add(layers.Flatten())
 
-    # fully connected layer 500 neurons
+    # fully connected layer 256 neurons
+    model.add(layers.Dense(units=256, activation='relu',
+              kernel_regularizer='l2' if reg else None))
+    model.add(layers.Dropout(0.5))
+    if (normal):
+        model.add(layers.BatchNormalization())
+
     model.add(layers.Dense(units=128, activation='relu',
               kernel_regularizer='l2' if reg else None))
-
-    model.add(layers.Dropout(0.5))
 
     # final fully connected layer CLASS_NUM neurons with respect to CLASS_NUM subjects
     model.add(layers.Dense(units=class_num, activation='softmax',

@@ -13,13 +13,15 @@ os.mkdir('./ret_img')
 KERNEL_SIZE = 3
 BATCH_SIZE = 256
 EPOCH = 20
-ROUND = 10
+ROUND = 15
 USER_NUM = 5
 
 print('Loading data...')
 dataset, test_imgs, test_labels, _, _ = load_remote(USER_NUM)
 print('Data loaded.')
 print(len(dataset), dataset[0][0].shape, dataset[0][1].shape)
+
+tf.random.set_seed(2345)
 
 users_acc = [[]]*USER_NUM
 users_val_acc = [[]]*USER_NUM
