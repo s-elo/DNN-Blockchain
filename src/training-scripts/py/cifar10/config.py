@@ -1,0 +1,6 @@
+MODEL_NAME = 'cifar10'
+
+NODE_NUM = 2
+EPOCH = 2
+ROUND = 2
+BATCH_SIZE = 128

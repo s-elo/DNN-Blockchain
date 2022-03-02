@@ -3,7 +3,7 @@ import threading
 import os
 from dataHandler import dataAugment
 import tensorflow as tf
-
+from config import EPOCH, BATCH_SIZE
 
 os.environ['CUDA_VISIBLE_DEVICES'] = '0,1'
 
@@ -18,11 +18,6 @@ if gpus:
     except RuntimeError as e:
         # Memory growth must be set before GPUs have been initialized
         print(e)
-
-
-BATCH_SIZE = 64
-EPOCH = 2
-
 
 def train(model, train_data):
     model.compile(optimizer=tf.keras.optimizers.Adam(),

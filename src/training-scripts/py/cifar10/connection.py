@@ -200,7 +200,7 @@ class Connector(Scheduler):
     def load_data(self, data_set):
         # load the training dataset
         print('Loading training dataset...')
-        dataset = load_remote(split_num=5)
+        dataset = load_remote(split_num=self.total_node)
 
         self.train_data = dataset[data_set]
         print(

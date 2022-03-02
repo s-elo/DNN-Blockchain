@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 import sys
 from connection import Connector
+from config import MODEL_NAME, NODE_NUM, ROUND
 ADDRESS = None
 
 # it should be the ipfs node
@@ -12,11 +13,6 @@ PORT = sys.argv[1] if len(sys.argv) >= 2 else '3250'
 
 # default set is the first set
 SET = int(sys.argv[2]) if len(sys.argv) >= 3 else 0
-
-MODEL_NAME = 'cifar10'
-
-NODE_NUM = 2
-ROUND = 2
 
 if ADDRESS == None:
     ADDRESS = "0x8eacBB337647ea34eC26804C3339e80EB488587c"
