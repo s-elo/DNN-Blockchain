@@ -42,20 +42,26 @@ class Connector(Scheduler):
         # get the model from server for simulation
         # it should actually get the hash from blockchain (ipfs)
         # model_hash = main_contract.functions.get().call()
-        model_hash = 'QmUoPtUsFz5n98ycwGfcvCPTS16aZ42kiLmtx1nbnPoFgT'
-        model = rq.get(f'{self.ipfs_server_node}/{model_hash}').json()
+        # model_hash = 'QmUoPtUsFz5n98ycwGfcvCPTS16aZ42kiLmtx1nbnPoFgT'
+        # model = rq.get(f'{self.ipfs_server_node}/{model_hash}').json()
+        model_hash = 'bafybeibzzmt5yvyitoivhvk4pi5go7iwq4q2pyk5dynl734f52ccsfb2py'
+        model = rq.get(
+            f'https://{model_hash}.ipfs.dweb.link/{self.modelName}_model.json').json()
 
         return model
 
     def get_testset(self):
         print('loading the testset...')
         # it should from the blockchain based on the model name
-        testset_hash = 'QmSHfdkQh3GG9JGaw2zihshNdm4nC29q4vp4d1pZKtHVCD'
+        # testset_hash = 'QmSHfdkQh3GG9JGaw2zihshNdm4nC29q4vp4d1pZKtHVCD'
 
-        testset = rq.get(
-            f'{self.ipfs_server_node}/{testset_hash}').json()
+        # testset = rq.get(
+        #     f'{self.ipfs_server_node}/{testset_hash}').json()
 
-        return (np.array(testset['data']), np.array(testset['label']))
+        # return (np.array(testset['data']), np.array(testset['label']))
+        x_test, y_test = load_remote(train=False)
+
+        return (x_test, y_test)
 
     def getNodes(self):
         # it should fetch from the blockchain
@@ -198,7 +204,7 @@ class Connector(Scheduler):
     def load_data(self, data_set):
         # load the training dataset
         print('Loading training dataset...')
-        dataset = load_remote(split_num=self.total_node)
+        dataset = load_remote(split_num=self.total_node, train=True)
 
         self.train_data = dataset[data_set]
         print(
