@@ -27,10 +27,16 @@ class Contract:
         return nodes
 
     def addNode(self, node_address):
-        receipt = self.callMethod('addNode', node_address)
+        self.callMethod('addNode', node_address)
 
     def clearNodes(self):
-        receipt = self.callMethod('clearNodes')
+        self.callMethod('clearNodes')
+
+    def update_model(self, model_name, model_hash):
+        self.callMethod('updateModel', model_name, model_hash)
+
+    def update_testset(self, model_name, testset_hash):
+        self.callMethod('updateTestset', model_name, testset_hash)
 
     # for blockchain state-imutate functions
     def callMethod(self, method, *args):

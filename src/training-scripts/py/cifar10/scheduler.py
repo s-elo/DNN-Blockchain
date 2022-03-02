@@ -1,11 +1,9 @@
-from typing import List
 import threading
 import time
 import requests as rq
 # from testset import get_testset
 from utils import Utils
 import numpy as np
-import tensorflow as tf
 from train import evaluate
 
 

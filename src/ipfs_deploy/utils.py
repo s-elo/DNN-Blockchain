@@ -7,6 +7,19 @@ import os
 import socket
 
 
+def save(path='./data.json', data=[]):
+    with open(path, "w") as f:
+        json.dump(data, f)
+        print('loaded.')
+
+
+def read(path='./data.json'):
+    with open(path, 'r') as load_f:
+        data = json.load(load_f)
+
+        return data
+
+
 def get_host_ip():
     """
     query IP address of current machine

@@ -1,5 +1,3 @@
-import time
-import threading
 import os
 from dataHandler import dataAugment
 import tensorflow as tf

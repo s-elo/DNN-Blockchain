@@ -1,7 +1,4 @@
-from lib2to3.pytree import Node
 import requests as rq
-from web3 import Web3
-import json
 import os
 import threading
 from scheduler import Scheduler
@@ -90,16 +87,17 @@ class Connector(Scheduler):
         nodes = self.getNodes()
 
         # it means exceeding the maximum node number
-        if len(nodes) >= self.total_node:
+        if len(nodes) >= self.total_node and (self.address not in nodes):
+            # see if this node has joined before but somehow exit
             print(
                 f'Reached the maximum node number of the current training, please join next time.')
             os._exit(0)
 
-        self.addNode()
-
-        # after adding successfully
-        nodes.append(self.address)
-        print(nodes)
+        if self.address not in nodes:
+            self.addNode()
+            # after adding successfully
+            nodes.append(self.address)
+            print(nodes)
 
         # get the model and check if it exists
         self.check_model()
