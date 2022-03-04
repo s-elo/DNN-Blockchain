@@ -2,11 +2,12 @@ from flask import Flask, request, jsonify
 import sys
 from connection import Connector
 from config import MODEL_NAME, NODE_NUM, ROUND
+from accounts import accounts
 ADDRESS = None
 
 # it should be the ipfs node
-SERVER_DOMAIN = 'http://localhost'
-SERVER_PORT = '5000'
+# SERVER_DOMAIN = 'http://localhost'
+# SERVER_PORT = '5000'
 
 # default port is 3250
 PORT = sys.argv[1] if len(sys.argv) >= 2 else '3250'
@@ -15,10 +16,18 @@ PORT = sys.argv[1] if len(sys.argv) >= 2 else '3250'
 SET = int(sys.argv[2]) if len(sys.argv) >= 3 else 0
 
 if ADDRESS == None:
-    ADDRESS = "0x8eacBB337647ea34eC26804C3339e80EB488587c"
+    if type(accounts).__name__ == 'list':
+        # for multiple accounts simulation
+        ADDRESS = accounts[SET]['address']
+        private_key = accounts[SET]['private_key']
+    else:
+        # for single account simulation without incentive mechanism
+        ADDRESS = accounts['address']
+        private_key = accounts['private_key']
 
-dnn = Connector(SERVER_DOMAIN, SERVER_PORT, PORT,
-                MODEL_NAME, SET, ADDRESS, NODE_NUM, ROUND)
+
+dnn = Connector(self_port=PORT, modelName=MODEL_NAME, data_set=SET,
+                account_address=ADDRESS, private_key=private_key, node_num=NODE_NUM, total_round=ROUND)
 
 # join the network
 dnn.join_network()

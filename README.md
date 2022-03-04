@@ -1,23 +1,82 @@
 # Decentralized Neural Network Using Blockchain
 
-## Decentralized Learning Simulation
+## Federated learning + blockchain + ipfs
 
-### 0. Set up
+### **1. Set up**
 
 **Requirement:** Python 3.7.11
 
 ```bash
-# at /python_server
-pip install -r requirements.txt
-
 # at /src/training-scripts/py/<project name>
 # e.g. /src/training-scripts/py/cirfar10
 pip install -r requirements.txt
 ```
 
-### 1. Build the network using Blockchain
+### **2. Account Preparation:**
 
-**Run IPFS node:**
+Since you need to provide the private key to make the transiction, you need to create a file called **accounts.py** at /src/training-scripts/py/[modelName]/ and add your account info
+
+e.g. /src/training-scripts/py/cifar10/accounts.py
+
+```python
+# this is for single account simulation without the incentive mechanism
+accounts = {
+    'address': 'your account address',
+    'private_key': 'your account private key'
+}
+
+# OR
+# for multiple accounts simulation (for each user)
+accounts = [
+    {
+        'address': 'first account address',
+        'private_key': 'first account private key'
+    },
+    {
+        'address': 'second account address',
+        'private_key': 'second account private key'
+    }
+]
+```
+
+### **3. Dataset Preparation:**
+
+**\*This is not necessary any more, since the data will be loaded remotely for quick simulation**
+
+Put the training dataset at /src/training-scripts/py/modelName/dataset. Use the names of the classes as the sub-folder name
+
+### **4. Run the training nodes:**
+
+```bash
+# Run one node
+# at /src/training-scripts/py/<modelName>
+# e.g. /src/training-scripts/py/cirfar10
+python main.py <port> <dataset(user)>
+# e.g. python main.py 3600 1
+```
+
+- You can run multiple nodes with different **port** and **data set**. The default **port** and **data set** is **3250** and **0** respectively by just running
+
+```bash
+python main.py
+```
+
+- The limited number of the nodes and training rounds can be set by modifying the two variables **NODE_NUM** and **ROUND** in the **config.py**.
+
+## Federated learning + central server
+
+### **Set up**
+
+```bash
+# if you want to do the simulation using the central sever
+# with only the federated learning
+# at /python_server
+pip install -r requirements.txt
+```
+
+Everything is the same as that for **Build the network using Blockchain** except:
+
+### **Run IPFS node:**
 
 You might need to install the [IPFS](https://docs.ipfs.io/install/command-line/#system-requirements) and run a daemon in your simulation server as one of the nodes in IPFS so that you can get the training model faster.
 
@@ -25,48 +84,14 @@ You might need to install the [IPFS](https://docs.ipfs.io/install/command-line/#
 ipfs daemon
 ```
 
-**Dataset Preparation:**
-
-Put the training dataset at /src/training-scripts/py/modelName/dataset. Use the names of the classes as the sub-folder name
-
-**Account Preparation:**
-
-Create a file call **privateKey.py** at the /src/training-scripts/py/modelName/ and add the private key of your account in the file. It will be used to send the transaction when imutating the state of the smart contract.
-
-```python
-private_key = 'your private key'
-```
-
-**Run the training nodes:**
-
-```bash
-# Run one node
-# at /src/training-scripts/py/<modelName>
-# e.g. /src/training-scripts/py/cirfar10
-python main.py <port> <data set>
-# e.g. python main.py 3600 1
-```
-
-- You can run multiple nodes with different **port** and **data set**. The default **port** and **data set** is **3250** and **0** respectively by running
-
-```bash
-python main.py
-```
-
-- The limited number of the nodes and training rounds can be set by modifying the two variables **NODE_NUM** and **ROUND** in the **main.py**. The default values are **2** nodes and **2** rounds.
-
-### 2. Build the network using a server
-
-Everything is the same as that for **Build the network using Blockchain** except:
-
-**Run a server:** (after running the IPFS daemon)
+### **Run a server:** (after running the IPFS daemon)
 
 ```bash
 # at /python_server
 python server.py
 ```
 
-**Run the training nodes:**
+### **Run the training nodes:**
 
 ```bash
 # at /src/training-scripts/py/<modelName_cen>
@@ -77,7 +102,7 @@ python main.py <port> <data set>
 
 ## Server for Downloading the Training Scripts
 
-### 0. Set up
+### Set up
 
 **Requirement:** nodeJS v16.13.1; npm 8.1.2
 
@@ -86,7 +111,7 @@ python main.py <port> <data set>
 npm install
 ```
 
-### 1. Run the server
+### Run the server
 
 ```bash
 # at the root /, install all the dependencies

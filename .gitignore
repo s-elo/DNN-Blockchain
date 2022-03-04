@@ -21,6 +21,6 @@ ret_img
 
 infura-project-info.md
 
-privateKey.py
+accounts.py
 
 model.json

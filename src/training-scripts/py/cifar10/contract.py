@@ -1,4 +1,3 @@
-from privateKey import private_key
 from web3 import Web3
 import json
 
@@ -9,9 +8,10 @@ def read(path='./contract.json'):
 
 
 class Contract:
-    def __init__(self, account_address, modelName) -> None:
+    def __init__(self, account_address, modelName, private_key) -> None:
         self.account_address = account_address
         self.modelName = modelName
+        self.private_key = private_key
 
         apiKey = 'ab53629910c440089fda82f82af645f7'
         self.w3 = Web3(Web3.HTTPProvider(
@@ -61,7 +61,7 @@ class Contract:
             *args).buildTransaction({'nonce': nonce})
 
         signed_txn = self.w3.eth.account.sign_transaction(
-            builded_txn, private_key=private_key)
+            builded_txn, private_key=self.private_key)
 
         tx_hash = self.w3.eth.send_raw_transaction(signed_txn.rawTransaction)
 

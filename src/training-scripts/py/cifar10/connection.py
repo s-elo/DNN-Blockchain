@@ -9,21 +9,21 @@ from contract import Contract
 
 
 class Connector(Scheduler):
-    def __init__(self, server_domain, server_port, self_port, modelName, data_set, account_address, node_num=2, total_round=2) -> None:
+    def __init__(self, self_port, modelName, data_set, account_address, private_key, node_num=2, total_round=2) -> None:
         super(Connector, self).__init__(
             self_port, modelName, node_num, total_round)
 
-        self.account_address = "0x8eacBB337647ea34eC26804C3339e80EB488587c" if account_address == None else account_address
+        self.account_address = account_address
 
-        self.server_domain = server_domain
-        self.server_port = server_port
+        # self.server_domain = server_domain
+        # self.server_port = server_port
 
-        self.server_addr = f'{server_domain}:{server_port}/{modelName}'
-        self.ipfs_server_node = f'{server_domain}:{8080}/ipfs'
+        # self.server_addr = f'{server_domain}:{server_port}/{modelName}'
+        # self.ipfs_server_node = f'{server_domain}:{8080}/ipfs'
 
         self.data_set = data_set
 
-        self.contract = Contract(account_address, modelName)
+        self.contract = Contract(account_address, modelName, private_key)
 
     def check_model(self):
         # request to join the training and get the model
