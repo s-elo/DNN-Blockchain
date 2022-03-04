@@ -9,8 +9,9 @@ def read(path='./contract.json'):
 
 
 class Contract:
-    def __init__(self, account_address) -> None:
+    def __init__(self, account_address, modelName) -> None:
         self.account_address = account_address
+        self.modelName = modelName
 
         apiKey = 'ab53629910c440089fda82f82af645f7'
         self.w3 = Web3(Web3.HTTPProvider(
@@ -22,21 +23,27 @@ class Contract:
         self.contract = self.w3.eth.contract(contractAddress, abi=abi)
 
     def getNodes(self):
-        nodes = self.contract.functions.getNodes().call()
+        nodes = self.contract.functions.getNodes(self.modelName).call()
 
         return nodes
 
     def addNode(self, node_address):
-        self.callMethod('addNode', node_address)
+        self.callMethod('addNode', self.modelName, node_address)
 
     def clearNodes(self):
-        self.callMethod('clearNodes')
+        self.callMethod('clearNodes', self.modelName)
 
-    def update_model(self, model_name, model_hash):
-        self.callMethod('updateModel', model_name, model_hash)
+    def getModelHash(self):
+        return self.contract.functions.getModelHash(self.modelName).call()
 
-    def update_testset(self, model_name, testset_hash):
-        self.callMethod('updateTestset', model_name, testset_hash)
+    def getTestsetHash(self):
+        return self.contract.functions.getTestsetHash(self.modelName).call()
+
+    def updateModel(self, model_hash):
+        self.callMethod('updateModel', self.modelName, model_hash)
+
+    def updateTestset(self, testset_hash):
+        self.callMethod('updateTestset', self.modelName, testset_hash)
 
     # for blockchain state-imutate functions
     def callMethod(self, method, *args):

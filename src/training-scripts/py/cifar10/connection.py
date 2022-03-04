@@ -23,7 +23,7 @@ class Connector(Scheduler):
 
         self.data_set = data_set
 
-        self.contract = Contract(account_address)
+        self.contract = Contract(account_address, modelName)
 
     def check_model(self):
         # request to join the training and get the model
@@ -44,7 +44,8 @@ class Connector(Scheduler):
         # model_hash = main_contract.functions.get().call()
         # model_hash = 'QmUoPtUsFz5n98ycwGfcvCPTS16aZ42kiLmtx1nbnPoFgT'
         # model = rq.get(f'{self.ipfs_server_node}/{model_hash}').json()
-        model_hash = 'bafybeibzzmt5yvyitoivhvk4pi5go7iwq4q2pyk5dynl734f52ccsfb2py'
+        model_hash = self.contract.getModelHash()
+
         model = rq.get(
             f'https://{model_hash}.ipfs.dweb.link/{self.modelName}_model.json').json()
 

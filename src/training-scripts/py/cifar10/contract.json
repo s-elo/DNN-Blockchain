@@ -1,34 +1,128 @@
 {
-    "address": "0x76FD83819da5AE5ace906D19B4e8C85cE58DBdE6",
+    "address": "0xECC03BCaE3944fF618787C209D64f8F5CfEE1456",
     "abi": [
         {
             "inputs": [
                 {
                     "internalType": "string",
-                    "name": "ipAddress",
+                    "name": "modelName",
+                    "type": "string"
+                },
+                {
+                    "internalType": "string",
+                    "name": "model_hash",
+                    "type": "string"
+                },
+                {
+                    "internalType": "string",
+                    "name": "testset_hash",
+                    "type": "string"
+                },
+                {
+                    "internalType": "string",
+                    "name": "accuracy",
                     "type": "string"
                 }
             ],
-            "name": "addNode",
-            "outputs": [
-                {
-                    "internalType": "string[]",
-                    "name": "",
-                    "type": "string[]"
-                }
-            ],
+            "name": "addNewModel",
+            "outputs": [],
             "stateMutability": "nonpayable",
             "type": "function"
         },
         {
-            "inputs": [],
+            "inputs": [
+                {
+                    "internalType": "string",
+                    "name": "modelName",
+                    "type": "string"
+                },
+                {
+                    "internalType": "string",
+                    "name": "node",
+                    "type": "string"
+                }
+            ],
+            "name": "addNode",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "string",
+                    "name": "modelName",
+                    "type": "string"
+                }
+            ],
             "name": "clearNodes",
             "outputs": [],
             "stateMutability": "nonpayable",
             "type": "function"
         },
         {
-            "inputs": [],
+            "inputs": [
+                {
+                    "internalType": "string",
+                    "name": "modelName",
+                    "type": "string"
+                }
+            ],
+            "name": "getModelHash",
+            "outputs": [
+                {
+                    "internalType": "string",
+                    "name": "",
+                    "type": "string"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "string",
+                    "name": "modelName",
+                    "type": "string"
+                }
+            ],
+            "name": "getModelInfo",
+            "outputs": [
+                {
+                    "components": [
+                        {
+                            "internalType": "string",
+                            "name": "model_hash",
+                            "type": "string"
+                        },
+                        {
+                            "internalType": "string",
+                            "name": "testset_hash",
+                            "type": "string"
+                        },
+                        {
+                            "internalType": "string",
+                            "name": "accuracy",
+                            "type": "string"
+                        }
+                    ],
+                    "internalType": "struct PureDnn.ModelInfo",
+                    "name": "",
+                    "type": "tuple"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "string",
+                    "name": "modelName",
+                    "type": "string"
+                }
+            ],
             "name": "getNodes",
             "outputs": [
                 {
@@ -38,6 +132,95 @@
                 }
             ],
             "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "string",
+                    "name": "modelName",
+                    "type": "string"
+                }
+            ],
+            "name": "getTestsetHash",
+            "outputs": [
+                {
+                    "internalType": "string",
+                    "name": "",
+                    "type": "string"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "string",
+                    "name": "",
+                    "type": "string"
+                }
+            ],
+            "name": "models",
+            "outputs": [
+                {
+                    "internalType": "string",
+                    "name": "model_hash",
+                    "type": "string"
+                },
+                {
+                    "internalType": "string",
+                    "name": "testset_hash",
+                    "type": "string"
+                },
+                {
+                    "internalType": "string",
+                    "name": "accuracy",
+                    "type": "string"
+                },
+                {
+                    "internalType": "bool",
+                    "name": "isAdded",
+                    "type": "bool"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "string",
+                    "name": "modelName",
+                    "type": "string"
+                },
+                {
+                    "internalType": "string",
+                    "name": "model_hash",
+                    "type": "string"
+                }
+            ],
+            "name": "updateModel",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "string",
+                    "name": "modelName",
+                    "type": "string"
+                },
+                {
+                    "internalType": "string",
+                    "name": "testset_hash",
+                    "type": "string"
+                }
+            ],
+            "name": "updateTestset",
+            "outputs": [],
+            "stateMutability": "nonpayable",
             "type": "function"
         }
     ]
