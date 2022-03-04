@@ -14,8 +14,17 @@ contract("PureDnn", (accounts) => {
       assert.equal(info, expRet[idx], "The model info is not right.");
     }
 
+    const modelHash = await dnn.getModelHash.call('cifar10');
+    const testsetHash = await dnn.getTestsetHash.call('cifar10');
+
+    assert.equal(modelHash, 'ipfs hash', 'model hash not right');
+    assert.equal(testsetHash, 'testset hash', 'testset has not right');
+
     await dnn.addNode('cifar10', 'node1_addr');
     await dnn.addNode('cifar10', 'node2_addr');
+
+    // add one more time see if it is convered (shouldnt convered)
+    await dnn.addNewModel("cifar10", "ipfs hash", "testset hash", "50%");
 
     const nodes = await dnn.getNodes.call('cifar10');
 

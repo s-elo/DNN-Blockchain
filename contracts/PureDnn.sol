@@ -13,8 +13,8 @@ contract PureDnn {
         string accuracy;
         // used to build up the distributed training network
         string[] nodes;
-        // the number of current joined node
-        uint256 node_num;
+        // to determine if it is added
+        bool isAdded;
     }
 
     struct ModelInfo {
@@ -38,23 +38,23 @@ contract PureDnn {
         string memory testset_hash,
         string memory accuracy
     ) public {
-        models[modelName] = Model({
-            model_hash: model_hash,
-            testset_hash: testset_hash,
-            accuracy: accuracy,
-            nodes: new string[](max_node_num),
-            node_num: 0
-        });
+        // if the model doesnt exist
+        if (models[modelName].isAdded == false) {
+            string[] memory initNodes;
+
+            models[modelName] = Model({
+                model_hash: model_hash,
+                testset_hash: testset_hash,
+                accuracy: accuracy,
+                nodes: initNodes,
+                isAdded: true
+            });
+        }
     }
 
     function addNode(string memory modelName, string memory node) public {
-        Model memory queryModel = models[modelName];
-        uint256 node_num = queryModel.node_num;
-
-        // just append to the nodes list
-        if (node_num < max_node_num) {
-            models[modelName].nodes[node_num] = node;
-            models[modelName].node_num = node_num + 1;
+        if (models[modelName].nodes.length < max_node_num) {
+            models[modelName].nodes.push(node);
         }
     }
 
@@ -74,25 +74,32 @@ contract PureDnn {
             });
     }
 
+    function getModelHash(string memory modelName)
+        public
+        view
+        returns (string memory)
+    {
+        return models[modelName].model_hash;
+    }
+
+    function getTestsetHash(string memory modelName)
+        public
+        view
+        returns (string memory)
+    {
+        return models[modelName].testset_hash;
+    }
+
     function getNodes(string memory modelName)
         public
         view
         returns (string[] memory)
     {
-        Model memory queryModel = models[modelName];
-
-        // create a new array according to the current number of nodes
-        string[] memory ret = new string[](queryModel.node_num);
-        for (uint256 i = 0; i < queryModel.node_num; i++) {
-            ret[i] = queryModel.nodes[i];
-        }
-
-        return ret;
+        return models[modelName].nodes;
     }
 
     function clearNodes(string memory modelName) public {
-        // just set the node_num as 0
-        models[modelName].node_num = 0;
+        delete models[modelName].nodes;
     }
 
     function updateModel(string memory modelName, string memory model_hash)
