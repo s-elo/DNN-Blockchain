@@ -1,4 +1,4 @@
-import * as utils from "./server-utils";
+import * as utils from "../server-utils";
 import { exec } from "child_process";
 import fs from "fs-extra";
 import path from "path";

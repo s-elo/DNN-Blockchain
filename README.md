@@ -41,13 +41,18 @@ accounts = [
 
 ### **3. Dataset Preparation:**
 
-**\*This is not necessary any more, since the data will be loaded remotely for quick simulation**
+**\*This is not necessary any more, since the data will be loaded using tensorflow API for quick simulation**
 
 Put the training dataset at /src/training-scripts/py/modelName/dataset. Use the names of the classes as the sub-folder name
 
 ### **4. Run the training nodes:**
 
+Before running the scripts, you might need to run the **init_fetch.py** first to fetch the model from ipfs. Initially, it might take some time to fetch the model, you need to wait a few minutes and you might need to try this a couple of times. Onece you can fetch the model in a short time, then you can run the training scripts for simulation more quickly.
+
 ```bash
+# intitial fetching
+python init_fetch.py
+
 # Run one node
 # at /src/training-scripts/py/<modelName>
 # e.g. /src/training-scripts/py/cirfar10

@@ -5,7 +5,7 @@
   "main": "server.js",
   "scripts": {
     "start": "nodemon --watch src/**/*.ts --exec \"ts-node\" src/server.ts",
-    "test": "ts-node ./src/test.ts",
+    "test": "ts-node ./src/test/test.ts",
     "deploy": "ts-node ./src/ipfs_deploy/deploy.ts"
   },
   "author": "",
