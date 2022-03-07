@@ -8,8 +8,11 @@ from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
 TRAIN_PATH = './dataset/'
 
+if not os.path.exists(TRAIN_PATH):
+    os.makedirs(TRAIN_PATH)
+
 CLASS_NAMES = os.listdir(TRAIN_PATH)
-CLASS_NUM = len(CLASS_NAMES)
+CLASS_NUM = 10
 
 IMG_WIDTH = 32
 IMG_HEIGHT = 32
