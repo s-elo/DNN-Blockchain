@@ -29,9 +29,9 @@ def load_remote(split_num=1, train=True, nor=True):
 
         y_train = to_categorical(y_train, num_classes=CLASS_NUM)
 
-        # split the training data
+        # split the training data (can be inequally divided)
         train_split_data = list(
-            zip(np.split(x_train, split_num, axis=0), np.split(y_train, split_num, axis=0)))
+            zip(np.array_split(x_train, split_num, axis=0), np.array_split(y_train, split_num, axis=0)))
 
         return train_split_data
     else:

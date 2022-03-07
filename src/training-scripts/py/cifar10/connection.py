@@ -4,7 +4,6 @@ import threading
 from scheduler import Scheduler
 from train import train
 from dataHandler import load_remote
-import numpy as np
 from contract import Contract
 
 
@@ -38,6 +37,16 @@ class Connector(Scheduler):
 
         return model
 
+    def keep_request_model(self, model_hash):
+        try:
+            model = rq.get(
+                f'https://{model_hash}.ipfs.dweb.link/{self.modelName}_model.json').json()
+        except:
+            print('failed to fetch, trying again...')
+            model = self.keep_request_model(model_hash)
+
+        return model
+
     def get_model(self):
         # get the model from server for simulation
         # it should actually get the hash from blockchain (ipfs)
@@ -46,8 +55,7 @@ class Connector(Scheduler):
         # model = rq.get(f'{self.ipfs_server_node}/{model_hash}').json()
         model_hash = self.contract.getModelHash()
 
-        model = rq.get(
-            f'https://{model_hash}.ipfs.dweb.link/{self.modelName}_model.json').json()
+        model = self.keep_request_model(model_hash)
 
         return model
 
@@ -88,6 +96,9 @@ class Connector(Scheduler):
         # print(receipt)
 
     def join_network(self):
+        # get the model and check if it exists
+        self.check_model()
+
         print(
             f'requesting to join the {self.modelName} current training network...')
 
@@ -105,9 +116,6 @@ class Connector(Scheduler):
             # after adding successfully
             nodes.append(self.address)
             print(nodes)
-
-        # get the model and check if it exists
-        self.check_model()
 
         self.nodes = nodes
 
@@ -165,19 +173,26 @@ class Connector(Scheduler):
         status = self.join_average(str_params, str_archi)
 
         if status == 'WAITING':
-            # the selected node will boardcast the averaged model
-            # the selected node will wait for other nodes' new models
-            print(
-                f'wating for other nodes to train in round {self.round}...')
+            # if already done and not the selected node, then no need to wait
+            if self.isDone() and self.isSelected() == False:
+                print(f'{self.total_round} round training has completed.')
+                self.utils.async_shutdown()
+            else:
+                # the selected node will boardcast the averaged model
+                # the selected node will wait for other nodes' new models
+                print(
+                    f'wating for other nodes to train in round {self.round}...')
         elif status == 'AVERAGED':
             if self.isDone():
                 print(f'{self.total_round} round training has completed.')
 
                 if self.isSelected():
                     self.clearNodes()
-
-                # store the model in the ipfs
-                self.utils.async_shutdown()
+                    # make sure the nodes cleared then close
+                    os._exit(0)
+                else:
+                    # store the model in the ipfs and shutdown
+                    self.utils.async_shutdown()
             else:
                 if self.isSelected():
                     self.async_boardcast(router='get-model',
@@ -213,6 +228,18 @@ class Connector(Scheduler):
 
 
 if __name__ == '__main__':
-    sc = Contract("0x8eacBB337647ea34eC26804C3339e80EB488587c")
+    from accounts import accounts
+    from config import MODEL_NAME
+
+    if type(accounts).__name__ == 'list':
+        # for multiple accounts simulation
+        ADDRESS = accounts[0]['address']
+        private_key = accounts[0]['private_key']
+    else:
+        # for single account simulation without incentive mechanism
+        ADDRESS = accounts['address']
+        private_key = accounts['private_key']
+
+    sc = Contract(ADDRESS, MODEL_NAME, private_key)
     receipt = sc.clearNodes()
     print('cleared')
