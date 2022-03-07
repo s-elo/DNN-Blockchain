@@ -88,12 +88,13 @@ class Connector(Scheduler):
             os._exit(0)
 
     def clearNodes(self):
-        # clear the ip address asyncly
-        thread = threading.Thread(
-            target=self.contract.clearNodes)
-        thread.start()
-        # receipt = callMethod(main_contract, 'clearNodes')
-        # print(receipt)
+        print('training finished, clearing nodes...')
+        # clear the ip address
+        self.contract.clearNodes()
+
+        print('cleared')
+        # make sure the nodes cleared then close
+        self.utils.async_shutdown()
 
     def join_network(self):
         # get the model and check if it exists
@@ -171,7 +172,7 @@ class Connector(Scheduler):
 
         # request to join the averaging process
         status = self.join_average(str_params, str_archi)
-
+        print(status)
         if status == 'WAITING':
             # if already done and not the selected node, then no need to wait
             if self.isDone() and self.isSelected() == False:
@@ -188,10 +189,7 @@ class Connector(Scheduler):
 
                 if self.isSelected():
                     self.clearNodes()
-                    # make sure the nodes cleared then close
-                    os._exit(0)
                 else:
-                    # store the model in the ipfs and shutdown
                     self.utils.async_shutdown()
             else:
                 if self.isSelected():

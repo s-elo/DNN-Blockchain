@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify
 import sys
+import threading
 from connection import Connector
 from config import MODEL_NAME, NODE_NUM, ROUND
 from accounts import accounts
@@ -53,12 +54,15 @@ def schedule():
         if dnn.isDone():
             print(f'{ROUND} round training has completed.')
 
-            dnn.clearNodes()
+            # clear the ip address asyncly for response then shutdown after cleared
+            thread = threading.Thread(
+                target=dnn.clearNodes)
+            thread.start()
 
             # store the model to ipfs
 
             # shutdown after returning the response
-            dnn.utils.async_shutdown()
+            # dnn.utils.async_shutdown()
         else:
             dnn.async_boardcast(router='get-model',
                                 params={'avgModel': dnn.model}, delay=2)
