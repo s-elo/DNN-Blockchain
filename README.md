@@ -68,9 +68,45 @@ python main.py
 
 - The limited number of the nodes and training rounds can be set by modifying the two variables **NODE_NUM** and **ROUND** in the **config.py**.
 
+## Simulation on different applications (models)
+
+If you want to try simulation on differnt models, you can do some changes based on the cifar10 training scripts **/src/training-scripts/py/cirfar10**
+
+### **1. Deploy model**
+
+Firstly we need to deploy the new model **(only for tensorflow models)** on the ipfs.
+at /src/ipfs_deploy/ create a new model folder just like **/src/ipfs_deploy/cifar10** which is able to generate the model.json file corresponding to the new model.
+
+After getting the model.json file:
+
+```bash
+npm run deploy [new model name(the folder name)]
+```
+
+### **2. Add the model hash to blockchain**
+
+After deployment, we should be able to get the hash of the model at /src/ipfs_deploy/deploy_hash.json (the last one), then you need to add this hash to the blockchain by updating the smart contract state
+using the explorer [here](https://ropsten.etherscan.io/address/0xecc03bcae3944ff618787c209d64f8f5cfee1456#writeContract). We should be able to use the **addNewModel** function and add the hash with the model name. The testset_hash can just be any string since we dont get the testset from ipfs for simulation.
+
+### **3. Change the dataHandler.py**
+
+After the above deployment, you need to customize how to get your training dataset as what the original cifar10 model does at **/src/training-scripts/py/cirfar10/dataHandler.py**. You can choose to load the dataset using tf API or download the dataset manually.
+
+### **4. Change the train.py**
+
+The train.py at **/src/training-scripts/py/cirfar10/train.py** determines how to compile and optimize the fetched model from ipfs and model evalation which can be also customized.
+
+### **5. Change the config.py**
+
+The config.py at **/src/training-scripts/py/cirfar10/config.py** is used to set some simulation parameters, at this point, the must-do change is the MODEL_NAME param to the name of your new deployed model and feel free to try other different params.
+
+After that, you should be able to do the simulation using the new application.
+
 ## Federated learning + central server
 
-### **Set up**
+**(This might be inconsistent and some issues)**
+
+### **1. Set up**
 
 ```bash
 # if you want to do the simulation using the central sever
@@ -81,7 +117,7 @@ pip install -r requirements.txt
 
 Everything is the same as that for **Build the network using Blockchain** except:
 
-### **Run IPFS node:**
+### **2. Run IPFS node:**
 
 You might need to install the [IPFS](https://docs.ipfs.io/install/command-line/#system-requirements) and run a daemon in your simulation server as one of the nodes in IPFS so that you can get the training model faster.
 
@@ -89,14 +125,14 @@ You might need to install the [IPFS](https://docs.ipfs.io/install/command-line/#
 ipfs daemon
 ```
 
-### **Run a server:** (after running the IPFS daemon)
+### **3. Run a server:** (after running the IPFS daemon)
 
 ```bash
 # at /python_server
 python server.py
 ```
 
-### **Run the training nodes:**
+### **4. Run the training nodes:**
 
 ```bash
 # at /src/training-scripts/py/<modelName_cen>
