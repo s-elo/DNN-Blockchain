@@ -1,10 +1,18 @@
 import tensorflow as tf
-from dataHandler import load_remote, CLASS_NUM, dataAugment
-from model import getModel, get_regnet
+from dataHandler import get_dataset, load_numpy_data, dataAugment, batch_size, epochs, class_num, height, width, channels, steps_per_epoch
+from model import getModel
 import os
+import random
+import numpy as np
+
+seed = 42
+
+random.seed(seed)
+os.environ['PYTHONHASHSEED'] = str(seed)
+np.random.seed(seed)
+tf.keras.utils.set_random_seed(seed)
 
 os.environ['CUDA_VISIBLE_DEVICES'] = '0,1'
-tf.random.set_seed(2345)
 
 gpus = tf.config.experimental.list_physical_devices('GPU')
 if gpus:
@@ -20,46 +28,28 @@ if gpus:
 
 
 print('Loading data...')
-_, test_imgs, test_labels, train_imgs, train_labels = load_remote(
-    split_num=1, nor=True)
+# train_set, test_set = get_dataset()
+x_train, y_train, x_test, y_test = load_numpy_data()
 print('Data loaded.')
-# print(train_imgs[0:1], train_labels.shape)
-
-KERNEL_SIZE = 3
-BATCH_SIZE = 128
-EPOCH = 200
 
 
 def train():
-    gen = dataAugment(train_imgs, train_labels, batch_size=BATCH_SIZE)
+    gen = dataAugment(x_train, y_train, batch_size=batch_size)
 
-    model = getModel(
-        train_imgs.shape[1:], KERNEL_SIZE, CLASS_NUM, reg=True, normal=True)
+    model = getModel((height, width, channels), kernel_size=3,
+                     class_num=class_num, reg=True, normal=True)
 
     # model = get_regnet(train_imgs.shape[1:], CLASS_NUM)
 
     model.summary()
 
-    # log_dir = "./logs/fit/"
-
-    # tensorboard_callback = tf.keras.callbacks.TensorBoard(
-    #     log_dir=log_dir, histogram_freq=1)
-
-    # model.compile(
-    #     optimizer='adam',
-    #     loss='sparse_categorical_crossentropy',
-    #     metrics=['accuracy'])
-
     model.compile(optimizer=tf.keras.optimizers.Adam(),
                   loss='categorical_crossentropy',
                   metrics=['accuracy'])
 
-    # callbacks=[tensorboard_callback]
-    #   validation_data=(test_imgs, test_labels)
-    h = model.fit(x=gen,  epochs=EPOCH, steps_per_epoch=50000 //
-                  BATCH_SIZE, validation_data=(test_imgs, test_labels))
-
-    model.evaluate(test_imgs, test_labels)
+    # model.fit(train_set, epochs=epochs, validation_data=test_set)
+    model.fit(gen, epochs=epochs, batch_size=batch_size,
+              steps_per_epoch=steps_per_epoch, validation_data=(x_test, y_test))
 
 
 train()
