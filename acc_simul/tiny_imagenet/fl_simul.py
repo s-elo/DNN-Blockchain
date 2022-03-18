@@ -1,8 +1,9 @@
+from gc import callbacks
 import numpy as np
 import matplotlib.pyplot as plt
 import tensorflow as tf
-from dataHandler import dataAugment, CLASS_NUM, load_remote
-from model import getModel
+from dataHandler import load_numpy_data, dataAugment, batch_size, class_num, height, width, channels
+from model import get_pretrained_model
 import shutil
 import os
 
@@ -10,14 +11,15 @@ if os.path.exists('./ret_img') == True:
     shutil.rmtree('./ret_img')
 os.mkdir('./ret_img')
 
-KERNEL_SIZE = 3
-BATCH_SIZE = 256
-EPOCH = 20
-ROUND = 15
+ROUND = 10
 USER_NUM = 5
+EPOCHS = 20
 
 print('Loading data...')
-dataset, test_imgs, test_labels, _, _ = load_remote(USER_NUM)
+x_train, y_train, x_test, y_test = load_numpy_data()
+# split the training data
+dataset = list(zip(np.split(x_train, USER_NUM, axis=0),
+               np.split(y_train, USER_NUM, axis=0)))
 print('Data loaded.')
 print(len(dataset), dataset[0][0].shape, dataset[0][1].shape)
 
@@ -31,13 +33,18 @@ users_val_loss = [[]]*USER_NUM
 overall_val_acc = []*ROUND
 overall_val_loss = []*ROUND
 
-model = getModel(test_imgs.shape[1:], KERNEL_SIZE, CLASS_NUM)
+# model = getModel(test_imgs.shape[1:], KERNEL_SIZE, CLASS_NUM)
+model = get_pretrained_model((height, width, channels), class_num)
 
-model.compile(optimizer=tf.keras.optimizers.Adam(),
-              loss='categorical_crossentropy',
-              metrics=['accuracy'])
+# model.compile(optimizer=tf.keras.optimizers.Adam(),
+#               loss='categorical_crossentropy',
+#               metrics=['accuracy'])
 
-model.summary()
+# model.summary()
+
+# reducing learning rate on plateau
+rlrop = tf.keras.callbacks.ReduceLROnPlateau(
+    monitor='val_loss', mode='min', patience=5, factor=0.5, min_lr=1e-6, verbose=1)
 
 
 def split_train(model, dataset, test_imgs, test_labels):
@@ -51,12 +58,17 @@ def split_train(model, dataset, test_imgs, test_labels):
         train_imgs = dataset[batchIdx][0]
         train_labels = dataset[batchIdx][1]
 
-        gen = dataAugment(train_imgs, train_labels, batch_size=BATCH_SIZE)
+        print(train_imgs.shape)
+        gen = dataAugment(train_imgs, train_labels, batch_size=batch_size)
 
         model.set_weights(weights)
 
-        h = model.fit(x=gen,  epochs=EPOCH, steps_per_epoch=train_imgs.shape[0] // BATCH_SIZE,
-                      validation_data=(test_imgs, test_labels))
+        model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.0001),
+                      loss='categorical_crossentropy',
+                      metrics=['accuracy'])
+
+        h = model.fit(x=gen,  epochs=EPOCHS, steps_per_epoch=len(train_imgs) // batch_size, batch_size=batch_size,
+                      validation_data=(test_imgs, test_labels), callbacks=[rlrop])
 
         acc = h.history['accuracy']
         loss = h.history['loss']
@@ -93,11 +105,11 @@ def fl():
         print('\n')
         print('================Round' + str(i + 1) + '=================')
 
-        new_weights = split_train(avg_model, dataset, test_imgs, test_labels)
+        new_weights = split_train(avg_model, dataset, x_test, y_test)
         avg_model = fedAvg(model, new_weights)
 
         print('Evaluation')
-        loss, acc = avg_model.evaluate(test_imgs, test_labels)
+        loss, acc = avg_model.evaluate(x_test, y_test)
 
         overall_val_acc.append(acc)
         overall_val_loss.append(loss)
