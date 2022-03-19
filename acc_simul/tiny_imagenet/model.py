@@ -123,6 +123,6 @@ def get_pretrained_model(input_shape, class_num):
     model.add(tf.keras.layers.GlobalAveragePooling2D())
     model.add(tf.keras.layers.Dropout(0.2))
     model.add(tf.keras.layers.Dense(class_num, activation='softmax'))
-    model.summary()
+    # model.summary()
 
     return model

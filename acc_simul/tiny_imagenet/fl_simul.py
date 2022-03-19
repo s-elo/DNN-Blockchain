@@ -1,4 +1,3 @@
-from gc import callbacks
 import numpy as np
 import matplotlib.pyplot as plt
 import tensorflow as tf
@@ -6,6 +5,7 @@ from dataHandler import load_numpy_data, dataAugment, batch_size, class_num, hei
 from model import get_pretrained_model
 import shutil
 import os
+from checkpoint import Checkpoint
 
 if os.path.exists('./ret_img') == True:
     shutil.rmtree('./ret_img')
@@ -25,22 +25,9 @@ print(len(dataset), dataset[0][0].shape, dataset[0][1].shape)
 
 tf.random.set_seed(2345)
 
-users_acc = [[]]*USER_NUM
-users_val_acc = [[]]*USER_NUM
-users_loss = [[]]*USER_NUM
-users_val_loss = [[]]*USER_NUM
+global_info = Checkpoint(ROUND, USER_NUM)
 
-overall_val_acc = []*ROUND
-overall_val_loss = []*ROUND
-
-# model = getModel(test_imgs.shape[1:], KERNEL_SIZE, CLASS_NUM)
-model = get_pretrained_model((height, width, channels), class_num)
-
-# model.compile(optimizer=tf.keras.optimizers.Adam(),
-#               loss='categorical_crossentropy',
-#               metrics=['accuracy'])
-
-# model.summary()
+start_round, users_acc, users_val_acc, users_loss, users_val_loss, overall_val_acc, overall_val_loss = global_info.start()
 
 # reducing learning rate on plateau
 rlrop = tf.keras.callbacks.ReduceLROnPlateau(
@@ -61,8 +48,9 @@ def split_train(model, dataset, test_imgs, test_labels):
         print(train_imgs.shape)
         gen = dataAugment(train_imgs, train_labels, batch_size=batch_size)
 
+        # get another model instance to avoid multiple memory allocations when compiling
+        model = get_pretrained_model((height, width, channels), class_num)
         model.set_weights(weights)
-
         model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.0001),
                       loss='categorical_crossentropy',
                       metrics=['accuracy'])
@@ -99,11 +87,22 @@ def fedAvg(model, new_weights=[]):
 
 
 def fl():
+    cur_round = start_round
+    # model = getModel(test_imgs.shape[1:], KERNEL_SIZE, CLASS_NUM)
+    model = get_pretrained_model((height, width, channels), class_num)
+    if cur_round != 1:
+        model.load_weights('./weights/avg_weights')
+
+    model.compile(optimizer=tf.keras.optimizers.Adam(),
+                  loss='categorical_crossentropy',
+                  metrics=['accuracy'])
+    model.summary()
+
     avg_model = model
 
-    for i in range(0, ROUND):
+    while cur_round <= ROUND:
         print('\n')
-        print('================Round' + str(i + 1) + '=================')
+        print('================Round' + str(cur_round) + '=================')
 
         new_weights = split_train(avg_model, dataset, x_test, y_test)
         avg_model = fedAvg(model, new_weights)
@@ -113,6 +112,15 @@ def fl():
 
         overall_val_acc.append(acc)
         overall_val_loss.append(loss)
+
+        cur_round = cur_round + 1
+
+        # save the checkpoint for this round
+        global_info.save_user_info(
+            users_acc, users_val_acc, users_loss, users_val_loss)
+        global_info.save_weights(avg_model)
+        global_info.save_per_round(
+            cur_round, overall_val_acc, overall_val_loss)
 
     for user in range(0, USER_NUM):
         plt.figure()
@@ -146,6 +154,9 @@ def fl():
     plt.ylabel('loss')
     plt.legend()
     plt.savefig('./ret_img/overall_loss.png')
+
+    # remove the checkpoints
+    global_info.remove()
 
 
 fl()

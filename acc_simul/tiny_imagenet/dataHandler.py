@@ -5,6 +5,10 @@ import numpy as np
 import os
 import cv2
 from random import shuffle
+import random
+
+random.seed(42)
+np.random.seed(42)
 
 os.environ['CUDA_VISIBLE_DEVICES'] = '0,1'
 
