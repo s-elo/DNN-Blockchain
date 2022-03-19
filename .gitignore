@@ -26,3 +26,6 @@ accounts.py
 model.json
 
 privateKey.py
+
+/acc_simul/*/weights
+/acc_simul/*/check_info.json
