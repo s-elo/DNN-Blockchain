@@ -102,6 +102,20 @@ The config.py at **/src/training-scripts/py/cirfar10/config.py** is used to set 
 
 After that, you should be able to do the simulation using the new application.
 
+## Accuracy simulation
+
+At the /acc_simul, you can simulate the model using normal training and federated learning
+
+```bash
+# at /acc_simul/[model name]
+
+# normal training
+python model_simul.py
+
+# federated learning
+python fl_simul.py
+```
+
 ## Federated learning + central server
 
 **(This might be inconsistent and some issues)**
