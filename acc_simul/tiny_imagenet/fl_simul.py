@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import tensorflow as tf
 from dataHandler import load_numpy_data, dataAugment, batch_size, class_num, height, width, channels
-from model import get_pretrained_model
+from model import getModel, get_pretrained_model
 import shutil
 import os
 from checkpoint import Checkpoint
@@ -11,7 +11,7 @@ if os.path.exists('./ret_img') == True:
     shutil.rmtree('./ret_img')
 os.mkdir('./ret_img')
 
-ROUND = 10
+ROUND = 15
 USER_NUM = 5
 EPOCHS = 20
 
@@ -49,9 +49,11 @@ def split_train(model, dataset, test_imgs, test_labels):
         gen = dataAugment(train_imgs, train_labels, batch_size=batch_size)
 
         # get another model instance to avoid multiple memory allocations when compiling
-        model = get_pretrained_model((height, width, channels), class_num)
+        # model = get_pretrained_model((height, width, channels), class_num)
+        model = getModel((height, width, channels), kernel_size=3,
+                         class_num=class_num, reg=True, normal=True)
         model.set_weights(weights)
-        model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.0001),
+        model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.001),
                       loss='categorical_crossentropy',
                       metrics=['accuracy'])
 
@@ -89,11 +91,13 @@ def fedAvg(model, new_weights=[]):
 def fl():
     cur_round = start_round
     # model = getModel(test_imgs.shape[1:], KERNEL_SIZE, CLASS_NUM)
-    model = get_pretrained_model((height, width, channels), class_num)
+    # model = get_pretrained_model((height, width, channels), class_num)
+    model = getModel((height, width, channels), kernel_size=3,
+                     class_num=class_num, reg=True, normal=True)
     if cur_round != 1:
         model.load_weights('./weights/avg_weights')
 
-    model.compile(optimizer=tf.keras.optimizers.Adam(),
+    model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.001),
                   loss='categorical_crossentropy',
                   metrics=['accuracy'])
     model.summary()

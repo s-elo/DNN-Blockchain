@@ -26,14 +26,14 @@ def train():
     rlrop = tf.keras.callbacks.ReduceLROnPlateau(
         monitor='val_loss', mode='min', patience=5, factor=0.5, min_lr=1e-6, verbose=1)
 
-    # model = getModel((height, width, channels), kernel_size=3,
-    #                  class_num=class_num, reg=True, normal=True)
+    model = getModel((height, width, channels), kernel_size=3,
+                     class_num=class_num, reg=True, normal=True)
 
-    model = get_pretrained_model((height, width, channels), class_num)
+    # model = get_pretrained_model((height, width, channels), class_num)
 
     model.summary()
 
-    model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.0001),
+    model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.001),
                   loss='categorical_crossentropy',
                   metrics=['accuracy'])
 

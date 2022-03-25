@@ -26,12 +26,16 @@ print('Data loaded.')
 # print(train_imgs[0:1], train_labels.shape)
 
 KERNEL_SIZE = 3
-BATCH_SIZE = 128
+BATCH_SIZE = 256
 EPOCH = 200
 
 
 def train():
     gen = dataAugment(train_imgs, train_labels, batch_size=BATCH_SIZE)
+
+    # reducing learning rate on plateau
+    rlrop = tf.keras.callbacks.ReduceLROnPlateau(
+        monitor='val_loss', mode='min', patience=5, factor=0.5, min_lr=1e-6, verbose=1)
 
     model = getModel(
         train_imgs.shape[1:], KERNEL_SIZE, CLASS_NUM, reg=True, normal=True)
@@ -50,14 +54,14 @@ def train():
     #     loss='sparse_categorical_crossentropy',
     #     metrics=['accuracy'])
 
-    model.compile(optimizer=tf.keras.optimizers.Adam(),
+    model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.001),
                   loss='categorical_crossentropy',
                   metrics=['accuracy'])
 
     # callbacks=[tensorboard_callback]
     #   validation_data=(test_imgs, test_labels)
     h = model.fit(x=gen,  epochs=EPOCH, steps_per_epoch=50000 //
-                  BATCH_SIZE, validation_data=(test_imgs, test_labels))
+                  BATCH_SIZE, validation_data=(test_imgs, test_labels), callbacks=[rlrop])
 
     model.evaluate(test_imgs, test_labels)
 

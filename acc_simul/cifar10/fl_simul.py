@@ -13,7 +13,7 @@ os.mkdir('./ret_img')
 KERNEL_SIZE = 3
 BATCH_SIZE = 256
 EPOCH = 20
-ROUND = 10
+ROUND = 15
 USER_NUM = 5
 
 print('Loading data...')
