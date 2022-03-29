@@ -60,7 +60,7 @@ python main.py <port> <dataset(user)>
 # e.g. python main.py 3600 1
 ```
 
-- You can run multiple nodes with different **port** and **data set**. The default **port** and **data set** is **3250** and **0** respectively by just running
+- You can run multiple nodes with different **port** and **data set**, but make sure run them in a sequential manner (after fetching the model and adding to the network, then run next node). The default **port** and **data set** is **3250** and **0** respectively by just running
 
 ```bash
 python main.py

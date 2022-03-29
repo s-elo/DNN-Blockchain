@@ -16,6 +16,10 @@ PORT = sys.argv[1] if len(sys.argv) >= 2 else '3250'
 # default set is the first set
 SET = int(sys.argv[2]) if len(sys.argv) >= 3 else 0
 
+# default setup is with blockchain
+WithBlockchain = False if len(sys.argv) >= 4 else True
+
+print(PORT, SET, WithBlockchain)
 if ADDRESS == None:
     if type(accounts).__name__ == 'list':
         # for multiple accounts simulation
@@ -28,7 +32,8 @@ if ADDRESS == None:
 
 
 dnn = Connector(self_port=PORT, modelName=MODEL_NAME, data_set=SET,
-                account_address=ADDRESS, private_key=private_key, node_num=NODE_NUM, total_round=ROUND)
+                account_address=ADDRESS, private_key=private_key,
+                node_num=NODE_NUM, total_round=ROUND, withBlockchain=WithBlockchain)
 
 # join the network
 dnn.join_network()

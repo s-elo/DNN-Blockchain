@@ -98,6 +98,16 @@ def async_shutdown():
     shutdown_thread.start()
 
 
+def save(data, path):
+    with open(path, "w") as f:
+        json.dump(data, f)
+
+
+def read(path):
+    with open(path, 'r') as load_f:
+        return json.load(load_f)
+
+
 class Utils:
     def __init__(self) -> None:
         self.str_to_model = str_to_model
@@ -108,6 +118,8 @@ class Utils:
         self.structure_to_str = structure_to_str
         self.async_shutdown = async_shutdown
         self.get_host_ip = get_host_ip
+        self.save_json = save
+        self.read_json = read
 
 
 if __name__ == '__main__':

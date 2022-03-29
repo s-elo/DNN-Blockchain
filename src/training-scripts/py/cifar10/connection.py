@@ -8,7 +8,7 @@ from contract import Contract
 
 
 class Connector(Scheduler):
-    def __init__(self, self_port, modelName, data_set, account_address, private_key, node_num=2, total_round=2) -> None:
+    def __init__(self, self_port, modelName, data_set, account_address, private_key, node_num=2, total_round=2, withBlockchain=True) -> None:
         super(Connector, self).__init__(
             self_port, modelName, node_num, total_round)
 
@@ -23,6 +23,9 @@ class Connector(Scheduler):
         self.data_set = data_set
 
         self.contract = Contract(account_address, modelName, private_key)
+
+        # use blockchain to add nodes or not (for quick development and test)
+        self.withBlockchain = withBlockchain
 
     def check_model(self):
         # request to join the training and get the model
@@ -76,21 +79,45 @@ class Connector(Scheduler):
         # it should fetch from the blockchain
         # nodes = rq.post(f'{self.server_addr}/nodes', json={
         #     'address': self.address}).json()['nodes']
-        nodes = self.contract.getNodes()
+        if self.withBlockchain == True:
+            try:
+                nodes = self.contract.getNodes()
+            except ValueError:
+                print('failed to get the nodes info from blockchain, please try again.')
+                os._exit(0)
+        else:
+            # use local file
+            if os.path.exists('./nodes.json') == False:
+                # create a new file and save the initial nodes []
+                open('./nodes.json', 'w').close()
+                nodes = []
+                self.utils.save_json(data=nodes, path='./nodes.json')
+            else:
+                nodes = self.utils.read_json(path='./nodes.json')
 
         return nodes
 
     def addNode(self):
-        try:
-            self.contract.addNode(self.address)
-        except ValueError:
-            print('One node is joining, please wait a minute to join again')
-            os._exit(0)
+        if self.withBlockchain == True:
+            try:
+                self.contract.addNode(self.address)
+            except ValueError:
+                print('One node is joining, please wait a minute to join again')
+                os._exit(0)
+        else:
+            # add to the local file
+            nodes = self.utils.read_json(path='./nodes.json')
+            nodes.append(self.address)
+            self.utils.save_json(data=nodes, path='./nodes.json')
 
     def clearNodes(self):
         print('training finished, clearing nodes...')
-        # clear the ip address
-        self.contract.clearNodes()
+
+        if self.withBlockchain == True:
+            # clear the ip address
+            self.contract.clearNodes()
+        else:
+            os.remove('./nodes.json')
 
         print('cleared')
         # make sure the nodes cleared then close

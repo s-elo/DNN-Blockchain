@@ -1,10 +1,5 @@
 from web3 import Web3
-import json
-
-
-def read(path='./contract.json'):
-    with open(path, 'r') as load_f:
-        return json.load(load_f)
+from utils import read
 
 
 class Contract:
