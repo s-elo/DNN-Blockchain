@@ -111,6 +111,10 @@ class Connector(Scheduler):
             self.utils.save_json(data=nodes, path='./nodes.json')
 
     def clearNodes(self):
+        # at this point, the training has to be done
+        # draw the results
+        self.draw_ret()
+
         print('training finished, clearing nodes...')
 
         if self.withBlockchain == True:
@@ -128,7 +132,7 @@ class Connector(Scheduler):
         self.check_model()
 
         print(
-            f'requesting to join the {self.modelName} current training network...')
+            f'\nrequesting to join the {self.modelName} current training network...')
 
         nodes = self.getNodes()
 
@@ -143,7 +147,7 @@ class Connector(Scheduler):
             self.addNode()
             # after adding successfully
             nodes.append(self.address)
-            print(nodes)
+            print('current nodes: ', nodes)
 
         self.nodes = nodes
 
@@ -166,7 +170,7 @@ class Connector(Scheduler):
 
         # os._exit(0)
 
-    def join_average(self, model_params: str, model_archi: str):
+    def join_average(self, model_params: str, model_archi: str, train_records):
         if self.address == self.selected_node:
             # no need to post
             status = self.averge(
@@ -175,7 +179,16 @@ class Connector(Scheduler):
             return status
         else:
             resp = rq.post(f'{self.selected_node}/join-average', json={
-                'params': model_params, 'archi': model_archi, 'node': self.address})
+                'trained_model': {
+                    'params': model_params, 'archi': model_archi
+                },
+                'node_info': {
+                    'ip_address': self.address,
+                    'account_address': self.account_address,
+                    'node_idx': self.data_set
+                },
+                'train_records': train_records
+            })
 
             return resp.json()['status']
 
@@ -191,19 +204,19 @@ class Connector(Scheduler):
 
         print(f'Training at round {self.round}')
 
-        trained_model = train(model, self.train_data)
+        trained_model, train_records = train(model, self.train_data)
 
-        print(f'training done for round {self.round}')
+        print(f'training done for round {self.round}\n')
 
         str_params, str_archi = self.utils.model_to_str(trained_model)
 
         # request to join the averaging process
-        status = self.join_average(str_params, str_archi)
-        print(status)
+        status = self.join_average(str_params, str_archi, train_records)
+
         if status == 'WAITING':
             # if already done and not the selected node, then no need to wait
             if self.isDone() and self.isSelected() == False:
-                print(f'{self.total_round} round training has completed.')
+                print(f'{self.total_round} round training has completed.\n')
                 self.utils.async_shutdown()
             else:
                 # the selected node will boardcast the averaged model
@@ -212,7 +225,7 @@ class Connector(Scheduler):
                     f'wating for other nodes to train in round {self.round}...')
         elif status == 'AVERAGED':
             if self.isDone():
-                print(f'{self.total_round} round training has completed.')
+                print(f'{self.total_round} round training has completed.\n')
 
                 if self.isSelected():
                     self.clearNodes()
@@ -229,7 +242,8 @@ class Connector(Scheduler):
                     self.process_training()
                 else:
                     # the selected node will boardcast the averaged model
-                    print(f'about to get the model for round {self.round + 1}')
+                    print(
+                        f'about to get the model for round {self.round + 1}\n')
 
     def async_process_training(self):
         training_thread = threading.Thread(
@@ -249,7 +263,7 @@ class Connector(Scheduler):
 
         self.train_data = dataset[data_set]
         print(
-            f'Dataset loaded, find totally {self.train_data[0].shape[0]} data')
+            f'Dataset loaded, find totally {self.train_data[0].shape[0]} data\n')
 
 
 if __name__ == '__main__':

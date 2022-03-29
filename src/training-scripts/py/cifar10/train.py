@@ -3,7 +3,7 @@ from dataHandler import dataAugment
 import tensorflow as tf
 from config import EPOCH, BATCH_SIZE
 
-os.environ['CUDA_VISIBLE_DEVICES'] = '0,1'
+os.environ['CUDA_VISIBLE_DEVICES'] = '1'
 
 gpus = tf.config.experimental.list_physical_devices('GPU')
 if gpus:
@@ -12,10 +12,11 @@ if gpus:
         for gpu in gpus:
             tf.config.experimental.set_memory_growth(gpu, True)
         logical_gpus = tf.config.experimental.list_logical_devices('GPU')
-        print(len(gpus), "Physical GPUs,", len(logical_gpus), "Logical GPUs")
+        # print(len(gpus), "Physical GPUs,", len(logical_gpus), "Logical GPUs")
     except RuntimeError as e:
         # Memory growth must be set before GPUs have been initialized
         print(e)
+
 
 def train(model, train_data):
     model.compile(optimizer=tf.keras.optimizers.Adam(),
@@ -27,10 +28,18 @@ def train(model, train_data):
 
     gen = dataAugment(train_imgs, train_labels, batch_size=BATCH_SIZE)
 
-    model.fit(x=gen,  epochs=EPOCH,
-              steps_per_epoch=train_imgs.shape[0] // BATCH_SIZE)
+    h = model.fit(x=gen,  epochs=EPOCH,
+                  steps_per_epoch=train_imgs.shape[0] // BATCH_SIZE)
 
-    return model
+    acc = h.history['accuracy']
+    loss = h.history['loss']
+
+    train_records = {
+        'acc': acc,
+        'loss': loss,
+    }
+
+    return model, train_records
 
 
 def evaluate(model, test_data):
@@ -41,4 +50,6 @@ def evaluate(model, test_data):
     test_imgs = test_data[0]
     test_labels = test_data[1]
 
-    model.evaluate(test_imgs, test_labels)
+    loss, acc = model.evaluate(test_imgs, test_labels)
+
+    return loss, acc

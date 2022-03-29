@@ -19,7 +19,6 @@ SET = int(sys.argv[2]) if len(sys.argv) >= 3 else 0
 # default setup is with blockchain
 WithBlockchain = False if len(sys.argv) >= 4 else True
 
-print(PORT, SET, WithBlockchain)
 if ADDRESS == None:
     if type(accounts).__name__ == 'list':
         # for multiple accounts simulation
@@ -46,12 +45,12 @@ node = Flask(__name__)
 def schedule():
     post_data = request.get_json()
 
-    node = post_data['node']
+    node_info = post_data['node_info']
+    trained_model = post_data['trained_model']
+    train_records = post_data['train_records']
 
-    trained_model = {
-        'params': post_data['params'],
-        'archi': post_data['archi']
-    }
+    # update the training records
+    dnn.update_train_record(node_info['node_idx'], train_records)
 
     status = dnn.averge(new_model=trained_model)
 

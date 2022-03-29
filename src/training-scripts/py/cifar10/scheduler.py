@@ -5,6 +5,9 @@ import requests as rq
 from utils import Utils
 import numpy as np
 from train import evaluate
+import matplotlib.pyplot as plt
+import os
+import shutil
 
 
 class Scheduler:
@@ -29,6 +32,14 @@ class Scheduler:
 
         # store for later averaging
         self.models = []
+
+        # for result visulization
+        self.users_acc = [[]]*node_num
+        # self.users_val_acc = [[]]*node_num
+        self.users_loss = [[]]*node_num
+        # self.users_val_loss = [[]]*node_num
+        self.overall_val_acc = []*total_round
+        self.overall_val_loss = []*total_round
 
     def avg_check(self):
         # 1. the number of models must be euqal to the required node number
@@ -73,7 +84,22 @@ class Scheduler:
         model = model = self.utils.str_to_model(
             self.model['params'], self.model['archi'])
 
-        evaluate(model, self.test_data)
+        loss, acc = evaluate(model, self.test_data)
+
+        # update the overall training records
+        self.overall_val_acc.append(acc)
+        self.overall_val_loss.append(loss)
+
+    # update the trainning records for each node
+    def update_train_record(self, node_idx, train_records):
+        self.users_acc[node_idx] = self.users_acc[node_idx] + \
+            train_records['acc']
+        # self.users_val_acc[node_idx] = self.users_val_acc[node_idx] + \
+        #     train_records['val_acc']
+        self.users_loss[node_idx] = self.users_loss[node_idx] + \
+            train_records['loss']
+        # self.users_val_loss[node_idx] = self.users_val_loss[node_idx] + \
+        #     train_records['val_loss']
 
     # implement the selection algro
     def node_selection(self, nodes):
@@ -125,3 +151,43 @@ class Scheduler:
     def filter_self(self, router=''):
         return list(map(
             lambda node: f'{node}/{router}', filter(lambda node: node != self.address, self.nodes)))
+
+    def draw_ret(self):
+        if os.path.exists('./ret_img') == True:
+            shutil.rmtree('./ret_img')
+        os.mkdir('./ret_img')
+
+        for user in range(0, self.total_node):
+            plt.figure()
+            plt.title("user" + str(user + 1) + " accuracy along rounds")
+            plt.plot(self.users_acc[user], label='user_acc' + str(user + 1))
+            # plt.plot(self.users_val_acc[user],
+            #          label='user_val_acc' + str(user + 1))
+            plt.xlabel('epoch')
+            plt.ylabel('accuracy')
+            plt.legend()
+            plt.savefig('./ret_img/user' + str(user + 1) + '_acc.png')
+
+            plt.figure()
+            plt.title("user" + str(user + 1) + " loss along rounds")
+            plt.plot(self.users_loss[user], label='user_loss' + str(user + 1))
+            # plt.plot(self.users_val_loss[user],
+            #          label='user_val_loss' + str(user + 1))
+            plt.xlabel('epoch')
+            plt.ylabel('loss')
+            plt.legend()
+            plt.savefig('./ret_img/user' + str(user + 1) + '_loss.png')
+
+        plt.figure()
+        plt.plot(self.overall_val_acc, label='overall accuracy')
+        plt.xlabel('round')
+        plt.ylabel('accuracy')
+        plt.legend()
+        plt.savefig('./ret_img/overall_acc.png')
+
+        plt.figure()
+        plt.plot(self.overall_val_loss, label='overall loss')
+        plt.xlabel('round')
+        plt.ylabel('loss')
+        plt.legend()
+        plt.savefig('./ret_img/overall_loss.png')
