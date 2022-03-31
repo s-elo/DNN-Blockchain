@@ -6,6 +6,7 @@ import tensorflow as tf
 from tensorflow.keras.utils import to_categorical
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
+
 TRAIN_PATH = './dataset/train'
 TEST_PATH = './dataset/test'
 

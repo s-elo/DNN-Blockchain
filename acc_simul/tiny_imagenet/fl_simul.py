@@ -27,7 +27,7 @@ tf.random.set_seed(2345)
 
 global_info = Checkpoint(ROUND, USER_NUM)
 
-start_round, users_acc, users_val_acc, users_loss, users_val_loss, overall_val_acc, overall_val_loss = global_info.start()
+start_round, users_acc, users_val_acc, users_loss, users_val_loss, overall_acc, overall_loss, overall_val_acc, overall_val_loss = global_info.start()
 
 # reducing learning rate on plateau
 rlrop = tf.keras.callbacks.ReduceLROnPlateau(
@@ -112,19 +112,20 @@ def fl():
         avg_model = fedAvg(model, new_weights)
 
         print('Evaluation')
-        loss, acc = avg_model.evaluate(x_test, y_test)
+        loss, acc = avg_model.evaluate(x_train, y_train)
+        val_loss, val_acc = avg_model.evaluate(x_test, y_test)
 
-        overall_val_acc.append(acc)
-        overall_val_loss.append(loss)
+        overall_acc.append(acc)
+        overall_loss.append(loss)
+        overall_val_acc.append(val_acc)
+        overall_val_loss.append(val_loss)
 
         cur_round = cur_round + 1
 
         # save the checkpoint for this round
-        global_info.save_user_info(
-            users_acc, users_val_acc, users_loss, users_val_loss)
         global_info.save_weights(avg_model)
         global_info.save_per_round(
-            cur_round, overall_val_acc, overall_val_loss)
+            cur_round, users_acc, users_val_acc, users_loss, users_val_loss, overall_acc, overall_loss, overall_val_acc, overall_val_loss)
 
     for user in range(0, USER_NUM):
         plt.figure()
@@ -146,14 +147,18 @@ def fl():
         plt.savefig('./ret_img/user' + str(user + 1) + '_loss.png')
 
     plt.figure()
-    plt.plot(overall_val_acc, label='overall accuracy')
+    plt.title('merged model accuracy per round')
+    plt.plot(overall_acc, label='merged model train accuracy')
+    plt.plot(overall_val_acc, label='merged model test accuracy')
     plt.xlabel('round')
     plt.ylabel('accuracy')
     plt.legend()
     plt.savefig('./ret_img/overall_acc.png')
 
     plt.figure()
-    plt.plot(overall_val_loss, label='overall loss')
+    plt.title('merged model loss per round')
+    plt.plot(overall_loss, label='merged model train loss')
+    plt.plot(overall_val_loss, label='merged model test loss')
     plt.xlabel('round')
     plt.ylabel('loss')
     plt.legend()

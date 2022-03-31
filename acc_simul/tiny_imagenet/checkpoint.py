@@ -28,6 +28,8 @@ class Checkpoint:
                 'users_val_acc': [[]]*self.user_num,
                 'users_loss': [[]]*self.user_num,
                 'users_val_loss': [[]]*self.user_num,
+                'overall_acc': [[]]*self.round,
+                'overall_loss': [[]]*self.round,
                 'overall_val_acc': []*self.round,
                 'overall_val_loss': []*self.round
             }
@@ -44,6 +46,8 @@ class Checkpoint:
             self.check_info['users_val_acc'],
             self.check_info['users_loss'],
             self.check_info['users_val_loss'],
+            self.check_info['overall_acc'],
+            self.check_info['overall_loss'],
             self.check_info['overall_val_acc'],
             self.check_info['overall_val_loss']
         )
@@ -58,31 +62,17 @@ class Checkpoint:
         model.save_weights('./weights/avg_weights')
         print('saved')
 
-    def save_user_info(self, users_acc, users_val_acc, users_loss, users_val_loss):
-        print('saving users info...')
-        self.check_info = read()
+    def save_per_round(self, cur_round, users_acc, users_val_acc, users_loss, users_val_loss, overall_acc, overall_loss, overall_val_acc, overall_val_loss):
+        print('saving round info...')
 
         save(data={
-            'round': self.check_info['round'],
+            'round': cur_round,
             'users_acc': users_acc,
             'users_val_acc': users_val_acc,
             'users_loss': users_loss,
             'users_val_loss': users_val_loss,
-            'overall_val_acc': self.check_info['overall_val_acc'],
-            'overall_val_loss': self.check_info['overall_val_loss']
-        })
-        print('saved')
-
-    def save_per_round(self, cur_round, overall_val_acc, overall_val_loss):
-        print('saving round info...')
-        self.check_info = read()
-
-        save(data={
-            'round': cur_round,
-            'users_acc': self.check_info['users_acc'],
-            'users_val_acc': self.check_info['users_val_acc'],
-            'users_loss': self.check_info['users_loss'],
-            'users_val_loss': self.check_info['users_val_loss'],
+            'overall_acc': overall_acc,
+            'overall_loss': overall_loss,
             'overall_val_acc': overall_val_acc,
             'overall_val_loss': overall_val_loss
         })

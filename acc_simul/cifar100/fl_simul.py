@@ -17,7 +17,8 @@ ROUND = 15
 USER_NUM = 5
 
 print('Loading data...')
-dataset, test_imgs, test_labels, _, _ = load_remote(USER_NUM)
+dataset, test_imgs, test_labels, train_imgs, train_labels = load_remote(
+    USER_NUM)
 print('Data loaded.')
 print(len(dataset), dataset[0][0].shape, dataset[0][1].shape)
 
@@ -28,6 +29,8 @@ users_val_acc = [[]]*USER_NUM
 users_loss = [[]]*USER_NUM
 users_val_loss = [[]]*USER_NUM
 
+overall_acc = []*ROUND
+overall_loss = []*ROUND
 overall_val_acc = []*ROUND
 overall_val_loss = []*ROUND
 
@@ -97,10 +100,13 @@ def fl():
         avg_model = fedAvg(model, new_weights)
 
         print('Evaluation')
-        loss, acc = avg_model.evaluate(test_imgs, test_labels)
+        loss, acc = avg_model.evaluate(train_imgs, train_labels)
+        val_loss, val_acc = avg_model.evaluate(test_imgs, test_labels)
 
-        overall_val_acc.append(acc)
-        overall_val_loss.append(loss)
+        overall_acc.append(acc)
+        overall_loss.append(loss)
+        overall_val_acc.append(val_acc)
+        overall_val_loss.append(val_loss)
 
     for user in range(0, USER_NUM):
         plt.figure()
@@ -122,14 +128,18 @@ def fl():
         plt.savefig('./ret_img/user' + str(user + 1) + '_loss.png')
 
     plt.figure()
-    plt.plot(overall_val_acc, label='overall accuracy')
+    plt.title('merged model accuracy per round')
+    plt.plot(overall_acc, label='merged model train accuracy')
+    plt.plot(overall_val_acc, label='merged model test accuracy')
     plt.xlabel('round')
     plt.ylabel('accuracy')
     plt.legend()
     plt.savefig('./ret_img/overall_acc.png')
 
     plt.figure()
-    plt.plot(overall_val_loss, label='overall loss')
+    plt.title('merged model loss per round')
+    plt.plot(overall_loss, label='merged model train loss')
+    plt.plot(overall_val_loss, label='merged model test loss')
     plt.xlabel('round')
     plt.ylabel('loss')
     plt.legend()
