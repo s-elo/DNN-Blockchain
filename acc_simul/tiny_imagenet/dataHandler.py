@@ -10,7 +10,7 @@ import random
 random.seed(42)
 np.random.seed(42)
 
-os.environ['CUDA_VISIBLE_DEVICES'] = '0,1'
+os.environ['CUDA_VISIBLE_DEVICES'] = '1'
 
 gpus = tf.config.experimental.list_physical_devices('GPU')
 if gpus:

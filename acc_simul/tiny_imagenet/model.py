@@ -2,10 +2,10 @@ from tensorflow.keras import layers, models
 from tensorflow.keras.applications.resnet50 import ResNet50
 from tensorflow.keras.applications.efficientnet import EfficientNetB0
 from tensorflow.keras.models import Sequential
-import os
 import random
 import numpy as np
 import tensorflow as tf
+import os
 
 seed = 42
 

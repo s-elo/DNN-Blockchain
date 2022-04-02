@@ -14,7 +14,7 @@ KERNEL_SIZE = 3
 BATCH_SIZE = 256
 EPOCH = 20
 ROUND = 15
-USER_NUM = 5
+USER_NUM = 10
 
 print('Loading data...')
 dataset, test_imgs, test_labels, train_imgs, train_labels = load_remote(

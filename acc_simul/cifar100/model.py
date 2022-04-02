@@ -1,5 +1,20 @@
 import tensorflow as tf
 from tensorflow.keras import layers, models
+import os
+
+os.environ['CUDA_VISIBLE_DEVICES'] = '1'
+
+gpus = tf.config.experimental.list_physical_devices('GPU')
+if gpus:
+    try:
+        # Currently, memory growth needs to be the same across GPUs
+        for gpu in gpus:
+            tf.config.experimental.set_memory_growth(gpu, True)
+        logical_gpus = tf.config.experimental.list_logical_devices('GPU')
+        print(len(gpus), "Physical GPUs,", len(logical_gpus), "Logical GPUs")
+    except RuntimeError as e:
+        # Memory growth must be set before GPUs have been initialized
+        print(e)
 
 
 def getModel(input_shape, kernel_size, class_num, reg=True, normal=True):
@@ -10,6 +25,7 @@ def getModel(input_shape, kernel_size, class_num, reg=True, normal=True):
                             input_shape=input_shape, kernel_initializer='he_normal', padding='same'))
     if (normal):
         model.add(layers.BatchNormalization())
+
     model.add(layers.Conv2D(filters=64, strides=1, kernel_size=kernel_size, activation='relu',
                             kernel_initializer='he_normal', padding='same'))
     if (normal):
@@ -22,6 +38,7 @@ def getModel(input_shape, kernel_size, class_num, reg=True, normal=True):
                             kernel_initializer='he_normal', padding='same'))
     if (normal):
         model.add(layers.BatchNormalization())
+
     model.add(layers.Conv2D(filters=128, strides=1, kernel_size=kernel_size, activation='relu',
                             kernel_initializer='he_normal', padding='same'))
     if (normal):
@@ -34,30 +51,8 @@ def getModel(input_shape, kernel_size, class_num, reg=True, normal=True):
                             kernel_initializer='he_normal', padding='same'))
     if (normal):
         model.add(layers.BatchNormalization())
+
     model.add(layers.Conv2D(filters=256, strides=1, kernel_size=kernel_size, activation='relu',
-                            kernel_initializer='he_normal', padding='same'))
-    if (normal):
-        model.add(layers.BatchNormalization())
-
-    model.add(layers.MaxPooling2D(pool_size=2, strides=2, padding='same'))
-
-    # stage 4
-    model.add(layers.Conv2D(filters=512, strides=1, kernel_size=kernel_size, activation='relu',
-                            kernel_initializer='he_normal', padding='same'))
-    if (normal):
-        model.add(layers.BatchNormalization())
-    model.add(layers.Conv2D(filters=512, strides=1, kernel_size=kernel_size, activation='relu',
-                            kernel_initializer='he_normal', padding='same'))
-    if (normal):
-        model.add(layers.BatchNormalization())
-    model.add(layers.MaxPooling2D(pool_size=2, strides=2, padding='same'))
-
-    # stage 5
-    model.add(layers.Conv2D(filters=512, strides=1, kernel_size=kernel_size, activation='relu',
-                            kernel_initializer='he_normal', padding='same'))
-    if (normal):
-        model.add(layers.BatchNormalization())
-    model.add(layers.Conv2D(filters=512, strides=1, kernel_size=kernel_size, activation='relu',
                             kernel_initializer='he_normal', padding='same'))
     if (normal):
         model.add(layers.BatchNormalization())
@@ -67,15 +62,11 @@ def getModel(input_shape, kernel_size, class_num, reg=True, normal=True):
     # flatten as one dimension
     model.add(layers.Flatten())
 
-    # fully connected layer 256 neurons
-    model.add(layers.Dense(units=256, activation='relu',
-              kernel_regularizer='l2' if reg else None))
-    model.add(layers.Dropout(0.5))
-    if (normal):
-        model.add(layers.BatchNormalization())
-
+    # fully connected layer 500 neurons
     model.add(layers.Dense(units=128, activation='relu',
               kernel_regularizer='l2' if reg else None))
+
+    model.add(layers.Dropout(0.5))
 
     # final fully connected layer CLASS_NUM neurons with respect to CLASS_NUM subjects
     model.add(layers.Dense(units=class_num, activation='softmax',

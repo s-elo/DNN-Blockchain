@@ -28,8 +28,8 @@ class Checkpoint:
                 'users_val_acc': [[]]*self.user_num,
                 'users_loss': [[]]*self.user_num,
                 'users_val_loss': [[]]*self.user_num,
-                'overall_acc': [[]]*self.round,
-                'overall_loss': [[]]*self.round,
+                'overall_acc': []*self.round,
+                'overall_loss': []*self.round,
                 'overall_val_acc': []*self.round,
                 'overall_val_loss': []*self.round
             }
