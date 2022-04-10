@@ -26,6 +26,11 @@ contract PureDnn {
         string accuracy;
     }
 
+    ModelInfo[] infos;
+
+    uint256 len;
+    ModelInfo testModel;
+
     // indice according to the model name
     mapping(string => Model) public models;
 
@@ -112,5 +117,18 @@ contract PureDnn {
         public
     {
         models[modelName].testset_hash = testset_hash;
+    }
+
+    function testParam(ModelInfo[] memory modelInfos) public {
+        len = modelInfos.length;
+        testModel = modelInfos[0];
+        for (uint256 i = 0; i < modelInfos.length; i++) {
+            infos.push(modelInfos[i]);
+        }
+    }
+
+    // ModelInfo[] memory
+    function getTestModel() public view returns (ModelInfo[] memory) {
+        return infos;
     }
 }
