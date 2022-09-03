@@ -4,6 +4,7 @@ dataset
 
 *.png
 
+!**/figures/**
 
 models
 
