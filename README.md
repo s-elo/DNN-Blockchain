@@ -67,11 +67,11 @@ accounts = [
 2. set up your wallet following the instruction and keep your wallet private key words safe.
 3. after creating a wallet, you can now create an account.
 
-![](./figures/create_account.PNG)
+<img src="./figures/create_account.PNG" style="width: 300px; height: 400px"/>
 
 4. after your account has been created, you can see your `account address` and import the `private key` from metaMask. Besides, one account can be used in `different ethereum networks` including `ropsten testnet`, you can switch to different networks in metaMask as well(the ETH can not be shared through different networks)
 
-![](./figures/account_detail.PNG)
+<img src="./figures/account_detail.PNG" style="width: 600px; height: 300px"/>
 
 5. then you can go to [Ropsten Testnet Explorer](https://ropsten.etherscan.io/) to get info of your account
 6. lastly, you may want some ETH for the simulation, you can find a [ropsten faucet](https://faucet.egorfine.com/) to request some ETH. There should be a few different faucets. you can also ask me to give you some.
